@@ -102,11 +102,9 @@ different value or use a placeholder as key."
            return plist))
 
 (defun shackle-display-buffer-condition (buffer action)
-  (message "Buffer: %s, Action: %s" buffer action)
   (shackle-match buffer))
 
 (defun shackle-display-buffer-action (buffer alist)
-  (message "Buffer: %s, Alist: %s" buffer alist)
   (shackle-display-buffer buffer alist (shackle-match buffer)))
 
 (defun shackle--splittable-frame ()
@@ -141,7 +139,7 @@ afterwards."
         ;; killed when invoking `quit-window', a command bound per
         ;; default to "q" in buffers derived from `special-mode'
         (set-window-parameter (selected-window) 'quit-restore nil))
-    (let ((frame (shackle--splittable-frame))
+    (let ((frame (shackle--splittable-frame)))
       (when frame
         (let ((window (shackle--split-some-window frame alist)))
           (prog1 (window--display-buffer
@@ -149,7 +147,7 @@ afterwards."
             (when (plist-get plist :select)
               (select-window window t))
             (unless (cdr (assq 'inhibit-switch-frame alist))
-              (window--maybe-raise-frame (window-frame window))))))))))
+              (window--maybe-raise-frame (window-frame window)))))))))
 
 (define-minor-mode shackle-mode
   "Toggle `shackle-mode'.
