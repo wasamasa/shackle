@@ -1,7 +1,7 @@
 shackle
 =========
 
-.. image:: https://raw.githubusercontent.com/wasamasa/shackle/master/img/shackle.gif
+.. image:: https://raw.githubusercontent.com/wasamasa/shackle/regs/heads/master/img/shackle.gif
 
 About
 -----
