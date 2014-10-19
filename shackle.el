@@ -78,11 +78,6 @@ different value or use a placeholder as key."
                                     (:select boolean))))
   :group 'shackle)
 
-(setq shackle-rules
-      '(("*svg 2048*" :reuse t)
-        (compilation-mode :noselect t)
-        (t :select t)))
-
 (defun shackle--match (buffer-or-name condition plist)
   (let* ((buffer (get-buffer buffer-or-name))
          (buffer-major-mode (buffer-local-value 'major-mode buffer))
