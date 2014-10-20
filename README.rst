@@ -52,6 +52,10 @@ The following key-value pairs are available:
 
   Reuse the current window.
 
+- ``:frame`` and ``t``:
+
+  Pop buffer to a frame instead of a window.
+
 To have an exception to a default rule, use the condition of your
 choice and either don't list the key-value pair, use a different value
 or use a placeholder key with any value.

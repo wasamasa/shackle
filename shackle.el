@@ -69,13 +69,19 @@ Make sure the window that popped up is selected afterwards.
 
 Don't pop up any window and reuse the currently active one.
 
+:frame t
+
+Pop to a frame instead of window.
+
 To make an exception to a default rule, use the condition you
 want to exclude and either not use the key in question, use a
 different value or use a placeholder as key."
   :type '(alist :key-type (choice symbol string)
                 :value-type (plist :options
                                    ((:regexp boolean)
-                                    (:select boolean))))
+                                    (:select boolean)
+                                    (:reuse boolean)
+                                    (:frame boolean))))
   :group 'shackle)
 
 (defun shackle--match (buffer-or-name condition plist)
@@ -123,8 +129,9 @@ the least recently used window is used for splitting."
 
 (defun shackle-display-buffer (buffer alist &optional plist)
   "Display BUFFER and adhere to the conditions in PLIST.
-See `display-buffer-pop-up-window' for the basic functionality
-the majority of code was lifted from.  Additionally to BUFFER AND
+See `display-buffer-pop-up-window' and
+`display-buffer-pop-up-frame' for the basic functionality the
+majority of code was lifted from.  Additionally to BUFFER AND
 ALIST this function takes an optional PLIST argument which allows
 it to do useful things such as selecting the popped up window
 afterwards."
@@ -134,15 +141,26 @@ afterwards."
         ;; killed when invoking `quit-window', a command bound per
         ;; default to "q" in buffers derived from `special-mode'
         (set-window-parameter (selected-window) 'quit-restore nil))
-    (let ((frame (shackle--splittable-frame)))
-      (when frame
-        (let ((window (shackle--split-some-window frame alist)))
-          (prog1 (window--display-buffer
-                  buffer window 'window alist display-buffer-mark-dedicated)
-            (when (plist-get plist :select)
-              (select-window window t))
-            (unless (cdr (assq 'inhibit-switch-frame alist))
-              (window--maybe-raise-frame (window-frame window)))))))))
+    (if (plist-get plist :frame)
+        (let* ((params (cdr (assq 'pop-up-frame-parameters alist)))
+               (pop-up-frame-alist (append params pop-up-frame-alist))
+               (fun pop-up-frame-function))
+          (when fun
+            (let* ((frame (funcall fun))
+                   (window (frame-selected-window frame)))
+              (prog1 (window--display-buffer
+                      buffer window 'frame alist display-buffer-mark-dedicated)
+                (unless (cdr (assq 'inhibit-switch-frame alist))
+                  (window--maybe-raise-frame frame))))))
+      (let ((frame (shackle--splittable-frame)))
+        (when frame
+          (let ((window (shackle--split-some-window frame alist)))
+            (prog1 (window--display-buffer
+                    buffer window 'window alist display-buffer-mark-dedicated)
+              (when (plist-get plist :select)
+                (select-window window t))
+              (unless (cdr (assq 'inhibit-switch-frame alist))
+                (window--maybe-raise-frame (window-frame window))))))))))
 
 (define-minor-mode shackle-mode
   "Toggle `shackle-mode'.
