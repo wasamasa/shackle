@@ -162,6 +162,7 @@ afterwards."
               (unless (cdr (assq 'inhibit-switch-frame alist))
                 (window--maybe-raise-frame (window-frame window))))))))))
 
+;;;###autoload
 (define-minor-mode shackle-mode
   "Toggle `shackle-mode'.
 This global minor mode allows you to easily set up rules for
