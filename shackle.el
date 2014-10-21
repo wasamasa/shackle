@@ -37,7 +37,7 @@
 (require 'cl-lib)
 
 (defgroup shackle nil
-  "Bla"
+  "Enforce rules for popups"
   :group 'convenience
   :prefix "shackle-")
 
@@ -85,6 +85,9 @@ different value or use a placeholder as key."
   :group 'shackle)
 
 (defun shackle--match (buffer-or-name condition plist)
+  "Internal match function.
+Used by `shackle-match', returns PLIST when BUFFER-OR-NAME
+matches CONDITION."
   (let* ((buffer (get-buffer buffer-or-name))
          (buffer-major-mode (buffer-local-value 'major-mode buffer))
          (buffer-name (buffer-name buffer)))
@@ -98,14 +101,25 @@ different value or use a placeholder as key."
       plist)))
 
 (defun shackle-match (buffer-or-name)
+  "Checks whether BUFFER-OR-NAME matches any rule.
+Uses `shackle--match' to decide with `shackle-rules' whether
+there is a match, if yes it returns a property list which
+`shackle-display-buffer-condition' and
+`shackle-display-buffer-action' use."
   (cl-loop for (condition . plist) in shackle-rules
            when (shackle--match buffer-or-name condition plist)
            return plist))
 
 (defun shackle-display-buffer-condition (buffer action)
+  "Does BUFFER match any shackle condition?
+Uses `shackle-match'and `shackle-rules', BUFFER and ACTION take
+the form `display-buffer-alist' specifies."
   (shackle-match buffer))
 
 (defun shackle-display-buffer-action (buffer alist)
+  "Execute an action for BUFFER according to `shackle-rules'.
+This uses `shackle-display-buffer' internally, BUFFER and ALIST
+take the form `display-buffer-alist' specifies."
   (shackle-display-buffer buffer alist (shackle-match buffer)))
 
 (defun shackle--splittable-frame ()
