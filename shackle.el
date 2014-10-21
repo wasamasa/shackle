@@ -172,6 +172,7 @@ afterwards."
                       buffer window 'frame alist display-buffer-mark-dedicated)
                 (unless (cdr (assq 'inhibit-switch-frame alist))
                   (window--maybe-raise-frame frame))))))
+      ;; if there's no :frame key-value pair, do the window popup
       (let ((frame (shackle--splittable-frame)))
         (when frame
           (let ((window (shackle--split-some-window frame alist)))
