@@ -52,6 +52,14 @@ The following key-value pairs are available:
 
   Reuse the current window.
 
+- ``:reuse`` and ``t``:
+
+  Attempt reusing a window that's already displaying the buffer to be
+  displayed.  This option only makes sense with
+  ``shackle-preserve-emacs-defaults`` set to ``nil`` and can be used
+  this way to have the described behaviour on a case-by-case basis
+  instead for everything by default.
+
 - ``:frame`` and ``t``:
 
   Pop buffer to a frame instead of a window.
