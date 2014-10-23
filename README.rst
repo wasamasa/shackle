@@ -56,9 +56,11 @@ The following key-value pairs are available:
 
   Attempt reusing a window that's already displaying the buffer to be
   displayed.  This option only makes sense with
-  ``shackle-preserve-emacs-defaults`` set to ``nil`` and can be used
+  ``shackle-preserve-emacs-defaults`` set to ``nil``. It can be used
   this way to have the described behaviour on a case-by-case basis
-  instead for everything by default.
+  instead for everything by default.  Another way of using it may be
+  in the default rule to only alter ``switch-to-buffer`` to pop up
+  windows instead while keep this Emacs default.
 
 - ``:frame`` and ``t``:
 
