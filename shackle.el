@@ -160,8 +160,9 @@ afterwards."
           ;; things like `info' use to reuse the currently selected
           ;; window, it happens to be of the
           ;; (inhibit-same-window . nil) form
-          (and (assq 'inhibit-same-window alist)
-               (not (cdr (assq 'inhibit-same-window alist)))))
+          (and shackle-preserve-emacs-defaults
+               (and (assq 'inhibit-same-window alist)
+                    (not (cdr (assq 'inhibit-same-window alist))))))
       (prog1 (window--display-buffer buffer (selected-window) 'window alist)
         ;; the following is done to ensure a reused window doesn't get
         ;; killed when invoking `quit-window', a command bound per
