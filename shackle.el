@@ -71,7 +71,7 @@ The property list accepts the following keys and values:
 
 Make sure the window that popped up is selected afterwards.
 
-:reuse t
+:same t
 
 Don't pop up any window and reuse the currently active one.
 
@@ -86,7 +86,7 @@ different value or use a placeholder as key."
                 :value-type (plist :options
                                    ((:regexp boolean)
                                     (:select boolean)
-                                    (:reuse boolean)
+                                    (:same boolean)
                                     (:frame boolean))))
   :group 'shackle)
 
@@ -155,7 +155,7 @@ majority of code was lifted from.  Additionally to BUFFER AND
 ALIST this function takes an optional PLIST argument which allows
 it to do useful things such as selecting the popped up window
 afterwards."
-  (if (or (plist-get plist :reuse)
+  (if (or (plist-get plist :same)
           ;; there is `display-buffer--same-window-action' which
           ;; things like `info' use to reuse the currently selected
           ;; window, it happens to be of the

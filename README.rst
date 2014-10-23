@@ -48,7 +48,7 @@ The following key-value pairs are available:
 
   Select the popped up window.
 
-- ``:reuse`` and ``t``:
+- ``:same`` and ``t``:
 
   Reuse the current window.
 
