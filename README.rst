@@ -89,13 +89,19 @@ Internals
 customizable variable in Emacs that specifies what to do with buffers
 displayed with the ``display-buffer`` function.  It's used by quite a
 lot of Emacs packages, including very essential ones like the built-in
-help and compilation package.
+help and compilation package.  There is a
+``shackle-preserve-emacs-defaults`` option you can set to ``nil`` to
+make ``shackle`` completely ignore the defaults Emacs is using for
+``display-buffer``, such as reusing windows already displaying the
+target buffer or making ``switch-to-buffer`` not reuse the currently
+selected window.
 
-This means other Emacs packages that don't use this function won't be
+This means other Emacs packages that neither use the
+``display-buffer`` function directly nor indirectly won't be
 influenced by ``shackle``.  If you should ever come across a package
 that ought to use it, but doesn't conform, chances are you'll have to
 speak with upstream instead of me to have it fixed.  Another thing to
-be aware of is that if you've set up a default rule, it will take over
+be aware of is that if you've set up a default rule, it may take over
 the Emacs defaults which can play less well with packages (such as
 `Magit <http://github.com/magit/magit>`_).  Once you find out what's
 causing the problem, you can add an exception rule to fix it.

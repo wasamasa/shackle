@@ -46,6 +46,12 @@
   :type 'string
   :group 'shackle)
 
+(defcustom shackle-preserve-emacs-defaults t
+  "Preserve Emacs' defaults for popping up buffers?
+If t, do this, otherwise always override them."
+  :type 'boolean
+  :group 'shackle)
+
 (defcustom shackle-rules nil
   "Association list of rules what to do with windows.
 Each rule consists of a condition and a property list.  The
