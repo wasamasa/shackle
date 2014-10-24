@@ -38,8 +38,8 @@ The condition can be either a symbol, a string or ``t``.  A symbol is
 interpreted as the major mode of the buffer to match, a string as the
 name of the buffer (which can be turned into regexp matching by using
 the ``:regexp`` key with a value of ``t`` in the key-value part) and
-``t`` as the default rule to follow when no other match succeeds.  If
-you set up a default rule, make sure it's the last rule in
+``t`` as the fallback rule to follow when no other match succeeds.  If
+you set up a fallback rule, make sure it's the last rule in
 ``shackle-rules``, otherwise it will always be used.
 
 The following key-value pairs are available:
@@ -62,14 +62,14 @@ The following key-value pairs are available:
   ``shackle-preserve-emacs-defaults`` set to ``nil``. It can be used
   this way to have the described behaviour on a case-by-case basis
   instead for everything by default.  Another way of using it may be
-  in the default rule to only alter ``switch-to-buffer`` to pop up
-  windows instead while keep this Emacs default.
+  in the fallback rule to only alter ``switch-to-buffer`` to pop up
+  windows instead while keeping this Emacs default.
 
 - ``:frame`` and ``t``:
 
   Pop buffer to a frame instead of a window.
 
-To have an exception to a default rule, use the condition of your
+To have an exception to a fallback rule, use the condition of your
 choice and either don't list the key-value pair, use a different value
 or use a placeholder key with any value.
 
@@ -114,7 +114,7 @@ This means other Emacs packages that neither use the
 influenced by ``shackle``.  If you should ever come across a package
 that ought to use it, but doesn't conform, chances are you'll have to
 speak with upstream instead of me to have it fixed.  Another thing to
-be aware of is that if you've set up a default rule, it may take over
+be aware of is that if you've set up a fallback rule, it may take over
 the Emacs defaults which can play less well with packages (such as
 `Magit <http://github.com/magit/magit>`_).  Once you find out what's
 causing the problem, you can add an exception rule to fix it.

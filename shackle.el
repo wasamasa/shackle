@@ -69,8 +69,9 @@ use regular expression matching:
 
 :regexp t
 
-If the condition is t, turn the property list into the default
-for every invocation of `display-buffer'.
+If the condition is t, turn the property list into the fallback
+to use for every invocation of `display-buffer' with an unmatched
+condition.
 
 The property list accepts the following keys and values:
 
@@ -90,14 +91,14 @@ Don't pop up any window and reuse the currently active one.
 Try reusing a window already displaying the target buffer.  Use
 this in combination with `shackle-preserve-emacs-defaults' set to
 nil to have the described behaviour for certain buffers only.
-Alternatively use it as default rule to change only the
+Alternatively use it as fallback rule to change only the
 `switch-to-buffer' behaviour while keeping this Emacs default.
 
 :frame t
 
 Pop to a frame instead of window.
 
-To make an exception to a default rule, use the condition you
+To make an exception to a fallback rule, use the condition you
 want to exclude and either not use the key in question, use a
 different value or use a placeholder as key."
   :type '(alist :key-type (choice symbol string)
@@ -115,7 +116,7 @@ matches CONDITION."
   (let* ((buffer (get-buffer buffer-or-name))
          (buffer-major-mode (buffer-local-value 'major-mode buffer))
          (buffer-name (buffer-name buffer)))
-    (when (or (eq t condition) ; default case
+    (when (or (eq t condition) ; fallback case
               (and (symbolp condition)
                    (eq condition buffer-major-mode))
               (and (stringp condition)
