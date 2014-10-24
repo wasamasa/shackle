@@ -4,7 +4,7 @@
 
 ;; Author: Vasilij Schneidermann <v.schneidermann@gmail.com>
 ;; URL: https://github.com/wasamasa/shackle
-;; Version: 0.0.7
+;; Version: 0.0.8
 ;; Keywords: convenience
 
 ;; This file is NOT part of GNU Emacs.
