@@ -47,8 +47,15 @@
   :group 'shackle)
 
 (defcustom shackle-preserve-emacs-defaults t
-  "Preserve Emacs' defaults for popping up buffers?
-If t, do this, otherwise always override them."
+  "If t, preserve Emacs' defaults for popping up buffers.
+Otherwise always override them."
+  :type 'boolean
+  :group 'shackle)
+
+(defcustom shackle-select-reused-windows nil
+  "Make Emacs select reused windows by default.
+If t, do this,otherwise allow selection on a case-by-case
+basis."
   :type 'boolean
   :group 'shackle)
 
@@ -69,7 +76,10 @@ The property list accepts the following keys and values:
 
 :select t
 
-Make sure the window that popped up is selected afterwards.
+Make sure the window that popped up is selected afterwards.  Use
+this option on its own or in combination with :reuse.
+Alternatively set `shackle-select-reused-windows' to make this
+the default for reused windows.
 
 :same t
 
@@ -125,7 +135,7 @@ there is a match, if yes it returns a property list which
            return plist))
 
 (defun shackle-display-buffer-condition (buffer action)
-  "Does BUFFER match any shackle condition?
+  "Return key-value pairs when BUFFER match any shackle condition.
 Uses `shackle-match'and `shackle-rules', BUFFER and ACTION take
 the form `display-buffer-alist' specifies."
   (shackle-match buffer))
@@ -165,7 +175,14 @@ it to do useful things such as selecting the popped up window
 afterwards."
   (or (and (or shackle-preserve-emacs-defaults
                (plist-get plist :reuse))
-           (display-buffer-reuse-window buffer alist))
+           (let ((window (display-buffer-reuse-window buffer alist)))
+             (prog1 window
+               (when (and window
+                          (or shackle-select-reused-windows
+                              (and (plist-get plist :reuse)
+                                   (plist-get plist :select))))
+                 (select-window window)))))
+      ;; the next option is using the currently active window
       (if (or (plist-get plist :same)
               ;; there is `display-buffer--same-window-action' which
               ;; things like `info' use to reuse the currently selected

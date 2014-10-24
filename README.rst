@@ -46,7 +46,10 @@ The following key-value pairs are available:
 
 - ``:select`` and ``t``:
 
-  Select the popped up window.
+  Select the popped up window.  Can be used standalone or in
+  combination with ``:reuse`` to make reused windows selected.  The
+  ``shackle-select-reused-windows`` option makes this the default for
+  reused windows.
 
 - ``:same`` and ``t``:
 
