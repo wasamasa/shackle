@@ -75,6 +75,14 @@ Make sure the window that popped up is selected afterwards.
 
 Don't pop up any window and reuse the currently active one.
 
+:reuse t
+
+Try reusing a window already displaying the target buffer.  Use
+this in combination with `shackle-preserve-emacs-defaults' set to
+nil to have the described behaviour for certain buffers only.
+Alternatively use it as default rule to change only the
+`switch-to-buffer' behaviour while keeping this Emacs default.
+
 :frame t
 
 Pop to a frame instead of window.
