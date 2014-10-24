@@ -132,8 +132,8 @@ Alternatives
 
 This package is heavily inspired by `popwin
 <https://github.com/m2ym/popwin-el>`_ and was hacked together after
-discovering it being hard to debug, creating overly many idle timers
-and exposing rather baffling bugs.  ``shackle`` being intentionally
+discovering it being hard to debug, creating overly many timers and
+exposing rather baffling bugs.  ``shackle`` being intentionally
 simpler and easier to understand is considered a debugging-friendly
 feature, not a bug.  However if you prefer less rough edges, a
 sensible default configuration and having more options for
