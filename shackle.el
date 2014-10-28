@@ -166,26 +166,72 @@ the least recently used window is used for splitting."
   (or (window--try-to-split-window (get-largest-window frame t) alist)
       (window--try-to-split-window (get-lru-window frame t) alist)))
 
-(defun shackle-display-buffer (buffer alist &optional plist)
+(defun shackle--display-buffer-reuse (buffer alist plist)
+  "Attempt reusing a window BUFFER is already displayed in.
+ALIST is passed to `display-buffer-reuse-window' internally.
+Optionally select the window afterwards if either
+`shackle-select-reused-windows' is t or PLIST contains
+the :select key with t as value."
+  (let ((window (display-buffer-reuse-window buffer alist)))
+    (prog1 window
+      (when (and window
+                 (or shackle-select-reused-windows
+                     (and (plist-get plist :reuse)
+                          (plist-get plist :select))))
+        (select-window window)))))
+
+(defun shackle--display-buffer-same (buffer alist)
+  "Display BUFFER in the currently selected window.
+ALIST is passed to `window--display-buffer' internally."
+  (prog1 (window--display-buffer buffer (selected-window) 'window alist)
+    ;; the following is done to ensure a reused window doesn't get
+    ;; killed when invoking `quit-window', a command bound per
+    ;; default to "q" in buffers derived from `special-mode'
+    (set-window-parameter (selected-window) 'quit-restore nil)))
+
+(defun shackle--display-buffer-frame (buffer alist)
+  "Display BUFFER in a popped up frame.
+ALIST is passed to `window--display-buffer' internally."
+  (let* ((params (cdr (assq 'pop-up-frame-parameters alist)))
+         (pop-up-frame-alist (append params pop-up-frame-alist))
+         (fun pop-up-frame-function))
+    (when fun
+      (let* ((frame (funcall fun))
+             (window (frame-selected-window frame)))
+        (prog1 (window--display-buffer
+                buffer window 'frame alist
+                display-buffer-mark-dedicated)
+          (unless (cdr (assq 'inhibit-switch-frame alist))
+            (window--maybe-raise-frame frame)))))))
+
+(defun shackle--display-buffer-popup-window (buffer alist plist)
+  "Display BUFFER in a popped up window.
+ALIST is passed to `window--display-buffer' internally.
+Optionally select window afterwards if PLIST contains the :select
+key with t as value."
+  (let ((frame (shackle--splittable-frame)))
+    (when frame
+      (let ((window (shackle--split-some-window frame alist)))
+        (prog1 (window--display-buffer
+                buffer window 'window alist
+                display-buffer-mark-dedicated)
+          (when (plist-get plist :select)
+            (select-window window t))
+          (unless (cdr (assq 'inhibit-switch-frame alist))
+            (window--maybe-raise-frame (window-frame window))))))))
+
+(defun shackle-display-buffer (buffer alist plist)
   "Display BUFFER and adhere to the conditions in PLIST.
 See `display-buffer-pop-up-window' and
 `display-buffer-pop-up-frame' for the basic functionality the
-majority of code was lifted from.  Additionally to BUFFER AND
+majority of code was lifted from.  Additionally to BUFFER and
 ALIST this function takes an optional PLIST argument which allows
 it to do useful things such as selecting the popped up window
 afterwards."
   (cond
-   ;; start by checking for reusability, optionally select afterwards
    ((or (and (or shackle-preserve-emacs-defaults
                 (plist-get plist :reuse))
-            (let ((window (display-buffer-reuse-window buffer alist)))
-              (prog1 window
-                (when (and window
-                           (or shackle-select-reused-windows
-                               (and (plist-get plist :reuse)
-                                    (plist-get plist :select))))
-                  (select-window window)))))))
-   ;; the next option is using the currently active window
+             (shackle--display-buffer-reuse buffer alist plist))))
    ((or (plist-get plist :same)
         ;; there is `display-buffer--same-window-action' which
         ;; things like `info' use to reuse the currently selected
@@ -194,37 +240,15 @@ afterwards."
         (and shackle-preserve-emacs-defaults
              (and (assq 'inhibit-same-window alist)
                   (not (cdr (assq 'inhibit-same-window alist))))))
-    (prog1 (window--display-buffer buffer (selected-window) 'window alist)
-      ;; the following is done to ensure a reused window doesn't get
-      ;; killed when invoking `quit-window', a command bound per
-      ;; default to "q" in buffers derived from `special-mode'
-      (set-window-parameter (selected-window) 'quit-restore nil)))
-   ;; then handling frames in a very basic manner
+    (shackle--display-buffer-same buffer alist))
    ((plist-get plist :frame)
-    (let* ((params (cdr (assq 'pop-up-frame-parameters alist)))
-           (pop-up-frame-alist (append params pop-up-frame-alist))
-           (fun pop-up-frame-function))
-      (when fun
-        (let* ((frame (funcall fun))
-               (window (frame-selected-window frame)))
-          (prog1 (window--display-buffer
-                  buffer window 'frame alist
-                  display-buffer-mark-dedicated)
-            (unless (cdr (assq 'inhibit-switch-frame alist))
-              (window--maybe-raise-frame frame)))))))
+    (shackle--display-buffer-frame buffer alist))
    ;; and finally, if there's no :frame key-value pair, do the
    ;; surprisingly normal window popup and optionally select
+   ;; TODO handle buffer windows if alingment (and ratio?) are set
+   ;; NOTE can be tested by using the method on buried buffers
    (t
-    (let ((frame (shackle--splittable-frame)))
-      (when frame
-        (let ((window (shackle--split-some-window frame alist)))
-          (prog1 (window--display-buffer
-                  buffer window 'window alist
-                  display-buffer-mark-dedicated)
-            (when (plist-get plist :select)
-              (select-window window t))
-            (unless (cdr (assq 'inhibit-switch-frame alist))
-              (window--maybe-raise-frame (window-frame window))))))))))
+    (shackle--display-buffer-popup-window buffer alist plist))))
 
 ;;;###autoload
 (define-minor-mode shackle-mode
