@@ -42,7 +42,7 @@
   :prefix "shackle-")
 
 (defcustom shackle-lighter " ⛓"
-  "Lighter for `shackle-mode'"
+  "Lighter for `shackle-mode'."
   :type 'string
   :group 'shackle)
 
@@ -111,8 +111,8 @@ different value or use a placeholder as key."
 
 (defun shackle--match (buffer-or-name condition plist)
   "Internal match function.
-Used by `shackle-match', returns PLIST when BUFFER-OR-NAME
-matches CONDITION."
+Used by `shackle-match', when BUFFER-OR-NAME matches CONDITION,
+PLIST is returned."
   (let* ((buffer (get-buffer buffer-or-name))
          (buffer-major-mode (buffer-local-value 'major-mode buffer))
          (buffer-name (buffer-name buffer)))
@@ -126,7 +126,7 @@ matches CONDITION."
       plist)))
 
 (defun shackle-match (buffer-or-name)
-  "Checks whether BUFFER-OR-NAME matches any rule.
+  "Check whether BUFFER-OR-NAME is any rule match.
 Uses `shackle--match' to decide with `shackle-rules' whether
 there is a match, if yes it returns a property list which
 `shackle-display-buffer-condition' and
@@ -148,7 +148,7 @@ take the form `display-buffer-alist' specifies."
   (shackle-display-buffer buffer alist (shackle-match buffer)))
 
 (defun shackle--splittable-frame ()
-  "Returns a splittable frame to work on.
+  "Return a splittable frame to work on.
 This can be either the selected frame or the last frame that's
 not displaying a lone minibuffer."
   (let ((selected-frame (selected-frame))
@@ -159,10 +159,12 @@ not displaying a lone minibuffer."
              (not (frame-parameter last-non-minibuffer-frame 'unsplittable))))))
 
 (defun shackle--split-some-window (frame alist)
-  "Returns a window if splitting any window was successful.
-This tries using the largest window for splitting, if all windows
-are the same size, the selected one is taken, in case this fails,
-the least recently used window is used for splitting."
+  "Return a window if splitting any window was successful.
+This function tries using the largest window on FRAME for
+splitting, if all windows are the same size, the selected one is
+taken, in case this fails, the least recently used window is used
+for splitting.  ALIST is passed to `window--try-to-split-window'
+internally."
   (or (window--try-to-split-window (get-largest-window frame t) alist)
       (window--try-to-split-window (get-lru-window frame t) alist)))
 
@@ -221,7 +223,7 @@ key with t as value."
             (window--maybe-raise-frame (window-frame window))))))))
 
 (defun shackle-display-buffer (buffer alist plist)
-  "Display BUFFER and adhere to the conditions in PLIST.
+  "Display BUFFER according to ALIST and PLIST.
 See `display-buffer-pop-up-window' and
 `display-buffer-pop-up-frame' for the basic functionality the
 majority of code was lifted from.  Additionally to BUFFER and
