@@ -294,11 +294,11 @@ afterwards."
       (delete-other-windows (if (window-minibuffer-p)
                                 (get-mru-window frame t)
                               (selected-window)))
-      ;; TODO replace `split-window-below' with `split-window'
       ;; TODO introduce (default) alignment
-      ;; TODO introduce rations, `split-window-below' defaults to 50%
+      ;; TODO introduce ratios, `split-window' defaults to 50%
       ;; because it takes half the size of the selected window
-      (let* ((window (split-window-below)))
+      ;; (let* ((window (split-window-below)))
+      (let ((window (split-window nil nil 'below)))
         (setq shackle--last-aligned-window window)
         (prog1 (window--display-buffer buffer window 'window alist
                                        display-buffer-mark-dedicated)
