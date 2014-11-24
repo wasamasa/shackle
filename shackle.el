@@ -262,15 +262,10 @@ afterwards."
 (defvar shackle--last-aligned-window nil)
 
 (defun shackle--restore-window-configuration ()
-  ;; TODO figure out how to detect killing (buffer-list/buffer-kill hook?)
-  ;; NOTE `buffer-list-update-hook' could be better for this
   (when (and (not shackle--in-progress)
              shackle--last-saved-window-configuration
              shackle--last-aligned-buffer
              (or (equal shackle--last-aligned-buffer (last-buffer))
-                 ;; NOTE this would detect a killed buffer, but not in
-                 ;; the `window-configuration-change-hook'
-                 ;; (not (buffer-live-p shackle--last-aligned-buffer))
                  (not (window-live-p shackle--last-aligned-window))))
     (unless (plist-get (shackle-match shackle--last-aligned-buffer) :defer)
       (remove-hook 'window-configuration-change-hook
