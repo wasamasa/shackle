@@ -222,6 +222,12 @@ key with t as value."
           (unless (cdr (assq 'inhibit-switch-frame alist))
             (window--maybe-raise-frame (window-frame window))))))))
 
+(defvar shackle--in-progress nil
+  ;; Yay, a mutex in a single-threaded application
+  "When t, cleanup must not be done yet.
+This is because shackle is still doing something with the
+windows, like selecting one after displaying it successfully.")
+
 (defun shackle-display-buffer (buffer alist plist)
   "Display BUFFER according to ALIST and PLIST.
 See `display-buffer-pop-up-window' and
@@ -230,6 +236,7 @@ majority of code was lifted from.  Additionally to BUFFER and
 ALIST this function takes an optional PLIST argument which allows
 it to do useful things such as selecting the popped up window
 afterwards."
+  (setq shackle--in-progress t)
   (cond
    ((or (and (or shackle-preserve-emacs-defaults
                 (plist-get plist :reuse))
@@ -237,20 +244,71 @@ afterwards."
    ((or (plist-get plist :same)
         ;; there is `display-buffer--same-window-action' which
         ;; things like `info' use to reuse the currently selected
-        ;; window, it happens to be of the
-        ;; (inhibit-same-window . nil) form
+        ;; (window, it happens to be of the
+        ;; inhibit-same-window . nil) form
         (and shackle-preserve-emacs-defaults
              (and (assq 'inhibit-same-window alist)
                   (not (cdr (assq 'inhibit-same-window alist))))))
     (shackle--display-buffer-same buffer alist))
    ((plist-get plist :frame)
     (shackle--display-buffer-frame buffer alist))
-   ;; and finally, if there's no :frame key-value pair, do the
-   ;; surprisingly normal window popup and optionally select
-   ;; TODO handle buffer windows if alingment (and ratio?) are set
-   ;; NOTE can be tested by using the method on buried buffers
+   ((plist-get plist :align)
+    (shackle--display-buffer-aligned-window buffer alist plist))
    (t
-    (shackle--display-buffer-popup-window buffer alist plist))))
+    (shackle--display-buffer-popup-window buffer alist plist)))
+  (setq shackle--in-progress nil))
+
+(defvar shackle--last-saved-window-configuration nil)
+(defvar shackle--last-aligned-buffer nil)
+(defvar shackle--last-aligned-window nil)
+
+(defun shackle--restore-window-configuration ()
+  ;; TODO figure out how to detect killing (buffer-list/buffer-kill hook?)
+  ;; NOTE `buffer-list-update-hook' could be better for this
+  (when (and (not shackle--in-progress)
+             shackle--last-saved-window-configuration
+             shackle--last-aligned-buffer
+             (or (equal shackle--last-aligned-buffer (last-buffer))
+                 ;; NOTE this would detect a killed buffer, but not in
+                 ;; the `window-configuration-change-hook'
+                 ;; (not (buffer-live-p shackle--last-aligned-buffer))
+                 (not (window-live-p shackle--last-aligned-window))))
+    (unless (plist-get (shackle-match shackle--last-aligned-buffer) :defer)
+      (remove-hook 'window-configuration-change-hook
+                   'shackle--restore-window-configuration)
+      (set-window-configuration (car shackle--last-saved-window-configuration))
+      (goto-char (cadr shackle--last-saved-window-configuration))
+      (setq shackle--last-saved-window-configuration nil)
+      (setq shackle--last-aligned-buffer nil)
+      (setq shackle--last-aligned-window nil))))
+
+(defun shackle--display-buffer-aligned-window (buffer alist plist)
+  (let ((frame (shackle--splittable-frame)))
+    (when frame
+      (setq shackle--last-saved-window-configuration
+            (list (current-window-configuration) (point)))
+      (setq shackle--last-aligned-buffer buffer)
+      ;; insteead of just deleting every other window except the
+      ;; currently selected one, the minibuffer one is dealt with
+      ;; specifically by using the MRU window in its case
+      (delete-other-windows (if (window-minibuffer-p)
+                                (get-mru-window frame t)
+                              (selected-window)))
+      ;; TODO replace `split-window-below' with `split-window'
+      ;; TODO introduce (default) alignment
+      ;; TODO introduce rations, `split-window-below' defaults to 50%
+      ;; because it takes half the size of the selected window
+      (let* ((window (split-window-below)))
+        (setq shackle--last-aligned-window window)
+        (prog1 (window--display-buffer buffer window 'window alist
+                                       display-buffer-mark-dedicated)
+          (when (plist-get plist :select)
+            (select-window window t))
+          (unless (cdr (assq 'inhibit-switch-frame alist))
+            (window--maybe-raise-frame (window-frame window)))
+          (add-hook 'window-configuration-change-hook
+                    'shackle--restore-window-configuration))))))
+
 
 ;;;###autoload
 (define-minor-mode shackle-mode
