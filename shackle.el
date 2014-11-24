@@ -223,7 +223,6 @@ key with t as value."
             (window--maybe-raise-frame (window-frame window))))))))
 
 (defvar shackle--in-progress nil
-  ;; Yay, a mutex in a single-threaded application
   "When t, cleanup must not be done yet.
 This is because shackle is still doing something with the
 windows, like selecting one after displaying it successfully.")
@@ -288,12 +287,13 @@ afterwards."
       (setq shackle--last-saved-window-configuration
             (list (current-window-configuration) (point)))
       (setq shackle--last-aligned-buffer buffer)
-      ;; insteead of just deleting every other window except the
+      ;; instead of just deleting every other window except the
       ;; currently selected one, the minibuffer one is dealt with
       ;; specifically by using the MRU window in its case
       (delete-other-windows (if (window-minibuffer-p)
                                 (get-mru-window frame t)
                               (selected-window)))
+      ;; TODO document the new options
       ;; TODO introduce (default) alignment
       ;; TODO introduce ratios, `split-window' defaults to 50%
       ;; because it takes half the size of the selected window
@@ -308,7 +308,6 @@ afterwards."
             (window--maybe-raise-frame (window-frame window)))
           (add-hook 'window-configuration-change-hook
                     'shackle--restore-window-configuration))))))
-
 
 ;;;###autoload
 (define-minor-mode shackle-mode
