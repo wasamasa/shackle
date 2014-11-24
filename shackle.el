@@ -284,7 +284,8 @@ afterwards."
       (setq shackle--last-aligned-buffer buffer)
       ;; instead of just deleting every other window except the
       ;; currently selected one, the minibuffer one is dealt with
-      ;; specifically by using the MRU window in its case
+      ;; specifically by using the most recently used non-minibuffer
+      ;; window in that case
       (delete-other-windows (if (window-minibuffer-p)
                                 (get-mru-window frame t)
                               (selected-window)))
