@@ -98,7 +98,7 @@ Alternatively use it as fallback rule to change only the
 
 Align the popped up window at the bottom by deleting all other
 windows, then restore the window configuration after the window
-has been "dealt" with by either burying its buffer or deleting
+has been \"dealt\" with by either burying its buffer or deleting
 the window.
 
 :defer t
