@@ -227,36 +227,6 @@ key with t as value."
 This is because shackle is still doing something with the
 windows, like selecting one after displaying it successfully.")
 
-(defun shackle-display-buffer (buffer alist plist)
-  "Display BUFFER according to ALIST and PLIST.
-See `display-buffer-pop-up-window' and
-`display-buffer-pop-up-frame' for the basic functionality the
-majority of code was lifted from.  Additionally to BUFFER and
-ALIST this function takes an optional PLIST argument which allows
-it to do useful things such as selecting the popped up window
-afterwards."
-  (setq shackle--in-progress t)
-  (cond
-   ((or (and (or shackle-preserve-emacs-defaults
-                (plist-get plist :reuse))
-             (shackle--display-buffer-reuse buffer alist plist))))
-   ((or (plist-get plist :same)
-        ;; there is `display-buffer--same-window-action' which
-        ;; things like `info' use to reuse the currently selected
-        ;; (window, it happens to be of the
-        ;; inhibit-same-window . nil) form
-        (and shackle-preserve-emacs-defaults
-             (and (assq 'inhibit-same-window alist)
-                  (not (cdr (assq 'inhibit-same-window alist))))))
-    (shackle--display-buffer-same buffer alist))
-   ((plist-get plist :frame)
-    (shackle--display-buffer-frame buffer alist))
-   ((plist-get plist :align)
-    (shackle--display-buffer-aligned-window buffer alist plist))
-   (t
-    (shackle--display-buffer-popup-window buffer alist plist)))
-  (setq shackle--in-progress nil))
-
 (defvar shackle--last-saved-window-configuration nil)
 (defvar shackle--last-aligned-buffer nil)
 (defvar shackle--last-aligned-window nil)
@@ -304,6 +274,36 @@ afterwards."
             (window--maybe-raise-frame (window-frame window)))
           (add-hook 'window-configuration-change-hook
                     'shackle--restore-window-configuration))))))
+
+(defun shackle-display-buffer (buffer alist plist)
+  "Display BUFFER according to ALIST and PLIST.
+See `display-buffer-pop-up-window' and
+`display-buffer-pop-up-frame' for the basic functionality the
+majority of code was lifted from.  Additionally to BUFFER and
+ALIST this function takes an optional PLIST argument which allows
+it to do useful things such as selecting the popped up window
+afterwards."
+  (setq shackle--in-progress t)
+  (cond
+   ((or (and (or shackle-preserve-emacs-defaults
+                (plist-get plist :reuse))
+             (shackle--display-buffer-reuse buffer alist plist))))
+   ((or (plist-get plist :same)
+        ;; there is `display-buffer--same-window-action' which
+        ;; things like `info' use to reuse the currently selected
+        ;; (window, it happens to be of the
+        ;; inhibit-same-window . nil) form
+        (and shackle-preserve-emacs-defaults
+             (and (assq 'inhibit-same-window alist)
+                  (not (cdr (assq 'inhibit-same-window alist))))))
+    (shackle--display-buffer-same buffer alist))
+   ((plist-get plist :frame)
+    (shackle--display-buffer-frame buffer alist))
+   ((plist-get plist :align)
+    (shackle--display-buffer-aligned-window buffer alist plist))
+   (t
+    (shackle--display-buffer-popup-window buffer alist plist)))
+  (setq shackle--in-progress nil))
 
 ;;;###autoload
 (define-minor-mode shackle-mode
