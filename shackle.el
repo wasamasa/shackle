@@ -94,6 +94,20 @@ nil to have the described behaviour for certain buffers only.
 Alternatively use it as fallback rule to change only the
 `switch-to-buffer' behaviour while keeping this Emacs default.
 
+:align t
+
+Align the popped up window at the bottom by deleting all other
+windows, then restore the window configuration after the window
+has been "dealt" with by either burying its buffer or deleting
+the window.
+
+:defer t
+
+Use this option to defer cleaning up an aligned window.  This is
+used to avoid errors with Emacs packages that clean up their
+buffers themselves and rely on their window being kept open until
+they finally delete it themselves, such as `helm'.
+
 :frame t
 
 Pop to a frame instead of window.
@@ -259,11 +273,9 @@ windows, like selecting one after displaying it successfully.")
       (delete-other-windows (if (window-minibuffer-p)
                                 (get-mru-window frame t)
                               (selected-window)))
-      ;; TODO document the new options
       ;; TODO introduce (default) alignment
       ;; TODO introduce ratios, `split-window' defaults to 50%
       ;; because it takes half the size of the selected window
-      ;; (let* ((window (split-window-below)))
       (let ((window (split-window nil nil 'below)))
         (setq shackle--last-aligned-window window)
         (prog1 (window--display-buffer buffer window 'window alist

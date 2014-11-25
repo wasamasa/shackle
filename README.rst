@@ -65,6 +65,24 @@ The following key-value pairs are available:
   in the fallback rule to only alter ``switch-to-buffer`` to pop up
   windows instead while keeping this Emacs default.
 
+- ``:align`` and ``t``:
+
+  Align a new window at the bottom of the current frame by deleting
+  every other window than the currently selected one, then wait for
+  the window to be "dealt" with.  This can either happen by burying
+  its buffer with ``q`` or by deleting its window with ``C-x 0``.
+
+- ``:defer`` and ``t``:
+
+  Not all aligned windows behave equally and can be expected to be
+  "dealt" with immediately.  An example for such an exception would be
+  `helm <https://github.com/emacs-helm/helm>`_ which pops up a window
+  and cleans up its buffers and finally the window itself.  To
+  accomodate for this behaviour, use this key-value pair.  To detect
+  whether it's needed at all, use the ``:align`` key with the ``t``
+  value on its own and check whether the window in question throws
+  errors.
+
 - ``:frame`` and ``t``:
 
   Pop buffer to a frame instead of a window.
