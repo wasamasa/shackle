@@ -65,12 +65,15 @@ The following key-value pairs are available:
   in the fallback rule to only alter ``switch-to-buffer`` to pop up
   windows instead while keeping this Emacs default.
 
-- ``:align`` and ``t``:
+- ``:align`` and ``'above``, ``'below``, ``'left``, ``'right``, or
+  ``t``:
 
-  Align a new window at the bottom of the current frame by deleting
-  every other window than the currently selected one, then wait for
-  the window to be "dealt" with.  This can either happen by burying
-  its buffer with ``q`` or by deleting its window with ``C-x 0``.
+  Align a new window at the respective side of the current frame or
+  with the default alignment (customizable with
+  ``shackle-default-alignment``) by deleting every other window than
+  the currently selected one, then wait for the window to be "dealt"
+  with.  This can either happen by burying its buffer with ``q`` or by
+  deleting its window with ``C-x 0``.
 
 - ``:defer`` and ``t``:
 

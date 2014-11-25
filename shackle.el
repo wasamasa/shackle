@@ -59,6 +59,24 @@ basis."
   :type 'boolean
   :group 'shackle)
 
+(defcustom shackle-default-alignment 'below
+  "The default alignment of aligned windows may be one of the
+following:
+
+'above: Align above the currently selected window.
+
+'below: Align below the currently selected window.
+
+'left: Align on the left side of the currently selected window.
+
+'right: Align on the right side of the currently selected
+window."
+  :type '(choice (const :tag "Above" above)
+                 (const :tag "Below" below)
+                 (const :tag "Left" left)
+                 (const :tag "Right" right))
+  :group 'shackle)
+
 (defcustom shackle-rules nil
   "Association list of rules what to do with windows.
 Each rule consists of a condition and a property list.  The
@@ -67,7 +85,7 @@ match the buffer's major mode.  If it's a string, match the name
 of the buffer.  Use the following option in the property list to
 use regular expression matching:
 
-:regexp t
+:regexp and t
 
 If the condition is t, turn the property list into the fallback
 to use for every invocation of `display-buffer' with an unmatched
@@ -75,18 +93,18 @@ condition.
 
 The property list accepts the following keys and values:
 
-:select t
+:select and t
 
 Make sure the window that popped up is selected afterwards.  Use
 this option on its own or in combination with :reuse.
 Alternatively set `shackle-select-reused-windows' to make this
 the default for reused windows.
 
-:same t
+:same and t
 
 Don't pop up any window and reuse the currently active one.
 
-:reuse t
+:reuse and t
 
 Try reusing a window already displaying the target buffer.  Use
 this in combination with `shackle-preserve-emacs-defaults' set to
@@ -94,21 +112,22 @@ nil to have the described behaviour for certain buffers only.
 Alternatively use it as fallback rule to change only the
 `switch-to-buffer' behaviour while keeping this Emacs default.
 
-:align t
+:align and t or either of 'above, 'below, 'left and 'right
 
-Align the popped up window at the bottom by deleting all other
+Align the popped up window at any of the specified sides or the
+default size (`shackle-default-alignment') by deleting all other
 windows, then restore the window configuration after the window
 has been \"dealt\" with by either burying its buffer or deleting
 the window.
 
-:defer t
+:defer and t
 
 Use this option to defer cleaning up an aligned window.  This is
 used to avoid errors with Emacs packages that clean up their
 buffers themselves and rely on their window being kept open until
 they finally delete it themselves, such as `helm'.
 
-:frame t
+:frame and t
 
 Pop to a frame instead of window.
 
@@ -273,10 +292,14 @@ windows, like selecting one after displaying it successfully.")
       (delete-other-windows (if (window-minibuffer-p)
                                 (get-mru-window frame t)
                               (selected-window)))
-      ;; TODO introduce (default) alignment
       ;; TODO introduce ratios, `split-window' defaults to 50%
       ;; because it takes half the size of the selected window
-      (let ((window (split-window nil nil 'below)))
+      (let* ((alignment-argument (plist-get plist :align))
+             (alignments '(above below left right))
+             (alignment (if (memq alignment-argument alignments)
+                            alignment-argument
+                          shackle-default-alignment))
+             (window (split-window nil nil alignment)))
         (setq shackle--last-aligned-window window)
         (prog1 (window--display-buffer buffer window 'window alist
                                        display-buffer-mark-dedicated)
@@ -334,3 +357,4 @@ popups in Emacs."
                   display-buffer-alist))))
 
 ;;; shackle.el ends here
+
