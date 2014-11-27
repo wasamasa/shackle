@@ -53,15 +53,15 @@ Otherwise always override them."
   :group 'shackle)
 
 (defcustom shackle-select-reused-windows nil
-  "Make Emacs select reused windows by default.
-If t, do this,otherwise allow selection on a case-by-case
+  "Make Emacs select reused windows by default?
+If t, do this, otherwise allow selection on a case-by-case
 basis."
   :type 'boolean
   :group 'shackle)
 
 (defcustom shackle-default-alignment 'below
-  "The default alignment of aligned windows may be one of the
-following:
+  "Default alignment of aligned windows.
+It may be one of the following values:
 
 'above: Align above the currently selected window.
 
@@ -270,13 +270,26 @@ key with t as value."
 (defvar shackle--in-progress nil
   "When t, cleanup must not be done yet.
 This is because shackle is still doing something with the
-windows, like selecting one after displaying it successfully.")
+windows, like selecting one after displaying it successfully.
+Used by `shackle--restore-window-configuration' for aligned
+windows.")
 
-(defvar shackle--last-saved-window-configuration nil)
-(defvar shackle--last-aligned-buffer nil)
-(defvar shackle--last-aligned-window nil)
+(defvar shackle--last-saved-window-configuration nil
+  "Stores the last saved window configuration.
+Only used for aligned windows.")
+
+(defvar shackle--last-aligned-buffer nil
+  "Stores the last aligned buffer.")
+
+(defvar shackle--last-aligned-window nil
+  "Stores the last aligned window.")
 
 (defun shackle--restore-window-configuration ()
+  "Hook function run to clean up an aligned buffer.
+Since the hook in question isn't run with arguments, the
+\"arguments\" are taken from `shackle--in-progress',
+`shackle--last-aligned-buffer' and
+`shackle--last-aligned-window'."
   (when (and (not shackle--in-progress)
              shackle--last-saved-window-configuration
              shackle--last-aligned-buffer
@@ -292,6 +305,12 @@ windows, like selecting one after displaying it successfully.")
       (setq shackle--last-aligned-window nil))))
 
 (defun shackle--display-buffer-aligned-window (buffer alist plist)
+  "Display BUFFER in an aligned window.
+ALIST is passed to `window--display-buffer' internally.
+Optionally use a different alignment and/or ratio if PLIST
+contains the :alignment key with an alignment different than the
+default one in `shackle-default-alignment' and/or PLIST contains
+the :ratio key with a floating point value."
   (let ((frame (shackle--splittable-frame)))
     (when frame
       (setq shackle--last-saved-window-configuration
