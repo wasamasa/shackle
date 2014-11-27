@@ -77,6 +77,13 @@ window."
                  (const :tag "Right" right))
   :group 'shackle)
 
+(defcustom shackle-default-ratio 0.5
+  "Default ratio of aligned windows.
+Must be a floating point number between 0 and 1.  A value of 0.5
+splits the window in half, a value of 0.33 in a third, etc."
+  :type 'float
+  :group 'shackle)
+
 (defcustom shackle-rules nil
   "Association list of rules what to do with windows.
 Each rule consists of a condition and a property list.  The
@@ -119,6 +126,11 @@ default size (`shackle-default-alignment') by deleting all other
 windows, then restore the window configuration after the window
 has been \"dealt\" with by either burying its buffer or deleting
 the window.
+
+:ratio and a floating point value between 0 and 1
+
+Use this option to specify a different ratio than the default
+value of 0.5 (`shackle-default-ratio`).
 
 :defer and t
 
@@ -292,14 +304,17 @@ windows, like selecting one after displaying it successfully.")
       (delete-other-windows (if (window-minibuffer-p)
                                 (get-mru-window frame t)
                               (selected-window)))
-      ;; TODO introduce ratios, `split-window' defaults to 50%
-      ;; because it takes half the size of the selected window
       (let* ((alignment-argument (plist-get plist :align))
              (alignments '(above below left right))
              (alignment (if (memq alignment-argument alignments)
                             alignment-argument
                           shackle-default-alignment))
-             (window (split-window nil nil alignment)))
+             (window-size (window-size
+                           nil (when (memq alignment '(left right)) t)))
+             (ratio (or (plist-get plist :ratio) shackle-default-ratio))
+             (size (round (* (- 1 ratio) window-size)))
+             (window (split-window nil size alignment)))
+        ;; TODO deal gracefully with faulty ratios/sizes
         (setq shackle--last-aligned-window window)
         (prog1 (window--display-buffer buffer window 'window alist
                                        display-buffer-mark-dedicated)

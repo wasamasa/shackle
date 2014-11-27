@@ -75,6 +75,14 @@ The following key-value pairs are available:
   with.  This can either happen by burying its buffer with ``q`` or by
   deleting its window with ``C-x 0``.
 
+- ``:ratio`` and a floating point value between 0 and 1:
+
+  Aligned window use a default ratio of 0.5 to split up the original
+  window in half (customizable with ``shackle-default-ratio``), the
+  ratio can be changed on a per-case basis by providing a different
+  floating point value like 0.33 to make it occupy a third of the
+  original window's size.
+
 - ``:defer`` and ``t``:
 
   Not all aligned windows behave equally and can be expected to be
