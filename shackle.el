@@ -332,7 +332,7 @@ the :ratio key with a floating point value."
         (if (or (< new-size (if horizontal window-min-width window-min-height))
                 (> new-size (- old-size (if horizontal window-min-width
                                           window-min-height))))
-            (error "Invalid alignment ratio, aborting...")
+            (error "Invalid alignment ratio, aborting")
           (setq shackle--last-saved-window-configuration
                 (list (current-window-configuration) (point)))
           (setq shackle--last-aligned-buffer buffer)
