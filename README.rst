@@ -14,11 +14,9 @@ everything reuse your currently selected window.
 Installation
 ------------
 
-Install via `quelpa <https://github.com/quelpa/quelpa>`_ with ``M-:
-(quelpa '(shackle :fetcher github :repo "wasamasa/shackle"))`` for the
-time being or download ``shackle.el``, place it into a suitable
-location such as ``~/.emacs.d/vendor/`` and add the following to your
-init file:
+Install via Marmalade or MELPA via ``M-x package-install RET shackle``
+or download ``shackle.el``, place it into a suitable location such as
+``~/.emacs.d/vendor/`` and add the following to your init file:
 
 .. code:: cl
 
