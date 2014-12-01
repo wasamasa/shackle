@@ -320,30 +320,33 @@ the :ratio key with a floating point value."
                               (get-mru-window frame t)
                             (selected-window))))
     (when frame
-      (setq shackle--last-saved-window-configuration
-            (list (current-window-configuration) (point)))
-      (setq shackle--last-aligned-buffer buffer)
-      (delete-other-windows selected-window)
       (let* ((alignment-argument (plist-get plist :align))
              (alignments '(above below left right))
              (alignment (if (memq alignment-argument alignments)
                             alignment-argument
                           shackle-default-alignment))
-             (old-size (window-size selected-window
-                                    (when (memq alignment '(left right)) t)))
+             (horizontal (when (memq alignment '(left right)) t))
+             (old-size (window-size (frame-root-window) horizontal))
              (ratio (or (plist-get plist :ratio) shackle-default-ratio))
-             (new-size (round (* (- 1 ratio) old-size)))
-             (window (split-window selected-window new-size alignment)))
-        ;; TODO deal gracefully with faulty ratios/sizes
-        (setq shackle--last-aligned-window window)
-        (prog1 (window--display-buffer buffer window 'window alist
-                                       display-buffer-mark-dedicated)
-          (when (plist-get plist :select)
-            (select-window window t))
-          (unless (cdr (assq 'inhibit-switch-frame alist))
-            (window--maybe-raise-frame (window-frame window)))
-          (add-hook 'window-configuration-change-hook
-                    'shackle--restore-window-configuration))))))
+             (new-size (round (* (- 1 ratio) old-size))))
+        (if (or (< new-size (if horizontal window-min-width window-min-height))
+                (> new-size (- old-size (if horizontal window-min-width
+                                          window-min-height))))
+            (error "Invalid alignment ratio, aborting...")
+          (setq shackle--last-saved-window-configuration
+                (list (current-window-configuration) (point)))
+          (setq shackle--last-aligned-buffer buffer)
+          (delete-other-windows selected-window)
+          (let* ((window (split-window selected-window new-size alignment)))
+            (setq shackle--last-aligned-window window)
+            (prog1 (window--display-buffer buffer window 'window alist
+                                           display-buffer-mark-dedicated)
+              (when (plist-get plist :select)
+                (select-window window t))
+              (unless (cdr (assq 'inhibit-switch-frame alist))
+                (window--maybe-raise-frame (window-frame window)))
+              (add-hook 'window-configuration-change-hook
+                        'shackle--restore-window-configuration))))))))
 
 (defun shackle-display-buffer (buffer alist plist)
   "Display BUFFER according to ALIST and PLIST.
