@@ -311,28 +311,29 @@ Optionally use a different alignment and/or ratio if PLIST
 contains the :alignment key with an alignment different than the
 default one in `shackle-default-alignment' and/or PLIST contains
 the :ratio key with a floating point value."
-  (let ((frame (shackle--splittable-frame)))
+  (let* ((frame (shackle--splittable-frame))
+         ;; instead of just deleting every other window except the
+         ;; currently selected one, the minibuffer one is dealt with
+         ;; specifically by using the most recently used
+         ;; non-minibuffer window in that case
+         (selected-window (if (window-minibuffer-p)
+                              (get-mru-window frame t)
+                            (selected-window))))
     (when frame
       (setq shackle--last-saved-window-configuration
             (list (current-window-configuration) (point)))
       (setq shackle--last-aligned-buffer buffer)
-      ;; instead of just deleting every other window except the
-      ;; currently selected one, the minibuffer one is dealt with
-      ;; specifically by using the most recently used non-minibuffer
-      ;; window in that case
-      (delete-other-windows (if (window-minibuffer-p)
-                                (get-mru-window frame t)
-                              (selected-window)))
+      (delete-other-windows selected-window)
       (let* ((alignment-argument (plist-get plist :align))
              (alignments '(above below left right))
              (alignment (if (memq alignment-argument alignments)
                             alignment-argument
                           shackle-default-alignment))
-             (window-size (window-size
-                           nil (when (memq alignment '(left right)) t)))
+             (old-size (window-size selected-window
+                                    (when (memq alignment '(left right)) t)))
              (ratio (or (plist-get plist :ratio) shackle-default-ratio))
-             (size (round (* (- 1 ratio) window-size)))
-             (window (split-window nil size alignment)))
+             (new-size (round (* (- 1 ratio) old-size)))
+             (window (split-window selected-window new-size alignment)))
         ;; TODO deal gracefully with faulty ratios/sizes
         (setq shackle--last-aligned-window window)
         (prog1 (window--display-buffer buffer window 'window alist
