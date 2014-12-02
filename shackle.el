@@ -386,9 +386,10 @@ popups in Emacs."
   :lighter shackle-lighter
   :global t
   (if shackle-mode
-      (add-to-list 'display-buffer-alist
-                   '(shackle-display-buffer-condition
-                     shackle-display-buffer-action))
+      (setq display-buffer-alist
+            (cons '(shackle-display-buffer-condition
+                    shackle-display-buffer-action)
+                  display-buffer-alist))
     (setq display-buffer-alist
           (remove '(shackle-display-buffer-condition
                     shackle-display-buffer-action)
