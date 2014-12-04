@@ -6,6 +6,7 @@
 ;; URL: https://github.com/wasamasa/shackle
 ;; Version: 0.1
 ;; Keywords: convenience
+;; Package-Requires: ((cl-lib "0.5"))
 
 ;; This file is NOT part of GNU Emacs.
 
@@ -395,5 +396,5 @@ popups in Emacs."
                     shackle-display-buffer-action)
                   display-buffer-alist))))
 
+(provide 'shackle)
 ;;; shackle.el ends here
-
