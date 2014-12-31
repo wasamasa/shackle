@@ -44,24 +44,18 @@ The following key-value pairs are available:
 
 - ``:select`` and ``t``:
 
-  Select the popped up window.  Can be used standalone or in
-  combination with ``:reuse`` to make reused windows selected.  The
-  ``shackle-select-reused-windows`` option makes this the default for
-  reused windows.
+  Select the popped up window.  The ``shackle-select-reused-windows``
+  option makes this the default for windows already displaying the
+  buffer.
 
 - ``:same`` and ``t``:
 
-  Reuse the current window.
+  Display buffer in the current window.
 
-- ``:reuse`` and ``t``:
+- ``:popup`` and ``t``:
 
-  Attempt reusing a window that's already displaying the buffer to be
-  displayed.  This option only makes sense with
-  ``shackle-preserve-emacs-defaults`` set to ``nil``. It can be used
-  this way to have the described behaviour on a case-by-case basis
-  instead for everything by default.  Another way of using it may be
-  in the fallback rule to only alter ``switch-to-buffer`` to pop up
-  windows instead while keeping this Emacs default.
+  Pop up a new window instead of displaying the buffer in the current
+  one.
 
 - ``:align`` and ``'above``, ``'below``, ``'left``, ``'right``, or
   ``t``:
@@ -107,10 +101,11 @@ unwanted window splitting:
 .. code:: cl
 
     (setq shackle-rules
-          '((t :reuse t)))
+          '((t :same t)))
 
 This one on the other hand provides a less intrusive user experience
-and demonstrates how to use exceptions:
+to select all windows by default unless they are spawned by
+``compilation-mode`` and demonstrates how to use exceptions:
 
 .. code:: cl
 
@@ -129,12 +124,7 @@ Internals
 customizable variable in Emacs that specifies what to do with buffers
 displayed with the ``display-buffer`` function.  It's used by quite a
 lot of Emacs packages, including very essential ones like the built-in
-help and compilation package.  There is a
-``shackle-preserve-emacs-defaults`` option you can set to ``nil`` to
-make ``shackle`` completely ignore the defaults Emacs is using for
-``display-buffer``, such as reusing windows already displaying the
-target buffer or making ``switch-to-buffer`` not reuse the currently
-selected window.
+help and compilation package.
 
 This means other Emacs packages that neither use the
 ``display-buffer`` function directly nor indirectly won't be

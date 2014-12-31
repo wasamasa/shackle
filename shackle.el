@@ -47,16 +47,11 @@
   :type 'string
   :group 'shackle)
 
-(defcustom shackle-preserve-emacs-defaults t
-  "If t, preserve Emacs' defaults for popping up buffers.
-Otherwise always override them."
-  :type 'boolean
-  :group 'shackle)
-
 (defcustom shackle-select-reused-windows nil
   "Make Emacs select reused windows by default?
-If t, do this, otherwise allow selection on a case-by-case
-basis."
+When t, select every window that is already displaying the buffer
+after attempting to display its buffer again by default,
+otherwise only do that if the :select keyword is present."
   :type 'boolean
   :group 'shackle)
 
@@ -103,35 +98,30 @@ The property list accepts the following keys and values:
 
 :select and t
 
-Make sure the window that popped up is selected afterwards.  Use
-this option on its own or in combination with :reuse.
-Alternatively set `shackle-select-reused-windows' to make this
-the default for reused windows.
+Make sure the window that popped up is selected afterwards.
+Customize `shackle-select-reused-windows' to make this the
+default for windows already displaying the buffer.
 
 :same and t
 
 Don't pop up any window and reuse the currently active one.
 
-:reuse and t
+:popup and t
 
-Try reusing a window already displaying the target buffer.  Use
-this in combination with `shackle-preserve-emacs-defaults' set to
-nil to have the described behaviour for certain buffers only.
-Alternatively use it as fallback rule to change only the
-`switch-to-buffer' behaviour while keeping this Emacs default.
+Pop up a new window instead of reusing the current one.
 
 :align and t or either of 'above, 'below, 'left and 'right
 
 Align the popped up window at any of the specified sides or the
-default size (`shackle-default-alignment') by deleting all other
-windows, then restore the window configuration after the window
-has been \"dealt\" with by either burying its buffer or deleting
-the window.
+default size (see `shackle-default-alignment') by deleting all
+other windows, then restore the window configuration after the
+window has been \"dealt\" with by either burying its buffer or
+deleting the window.
 
 :ratio and a floating point value between 0 and 1
 
 Use this option to specify a different ratio than the default
-value of 0.5 (`shackle-default-ratio`).
+value of 0.5 (see `shackle-default-ratio').
 
 :defer and t
 
@@ -152,6 +142,17 @@ different value or use a placeholder as key."
                                    ((:regexp boolean)
                                     (:select boolean)
                                     (:same boolean)
+                                    (:popup boolean)
+                                    (:same boolean)
+                                    (:align
+                                     (choice :value t
+                                             (const :tag "Default" t)
+                                             (const :tag "Above" 'above)
+                                             (const :tag "Below" 'below)
+                                             (const :tag "Left" 'left)
+                                             (const :tag "Right" 'right)))
+                                    (:ratio float)
+                                    (:defer boolean)
                                     (:frame boolean))))
   :group 'shackle)
 
@@ -224,8 +225,7 @@ the :select key with t as value."
     (prog1 window
       (when (and window
                  (or shackle-select-reused-windows
-                     (and (plist-get plist :reuse)
-                          (plist-get plist :select))))
+                     (plist-get plist :select)))
         (select-window window)))))
 
 (defun shackle--display-buffer-same (buffer alist)
@@ -359,15 +359,14 @@ it to do useful things such as selecting the popped up window
 afterwards."
   (setq shackle--in-progress t)
   (cond
-   ((or (and (or shackle-preserve-emacs-defaults
-                (plist-get plist :reuse))
-             (shackle--display-buffer-reuse buffer alist plist))))
+   ((shackle--display-buffer-reuse buffer alist plist))
    ((or (plist-get plist :same)
         ;; there is `display-buffer--same-window-action' which
         ;; things like `info' use to reuse the currently selected
-        ;; (window, it happens to be of the
-        ;; inhibit-same-window . nil) form
-        (and shackle-preserve-emacs-defaults
+        ;; window, it happens to be of the
+        ;; (inhibit-same-window . nil) form and should be permitted
+        ;; unless a popup is requested
+        (and (not (plist-get plist :popup))
              (and (assq 'inhibit-same-window alist)
                   (not (cdr (assq 'inhibit-same-window alist))))))
     (shackle--display-buffer-same buffer alist))
