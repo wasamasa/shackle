@@ -200,10 +200,12 @@ This can be either the selected frame or the last frame that's
 not displaying a lone minibuffer."
   (let ((selected-frame (selected-frame))
         (last-non-minibuffer-frame (last-nonminibuffer-frame)))
-    (or (and (window--frame-usable-p selected-frame)
-             (not (frame-parameter selected-frame 'unsplittable)))
-        (and (window--frame-usable-p last-non-minibuffer-frame)
-             (not (frame-parameter last-non-minibuffer-frame 'unsplittable))))))
+    (cl-flet ((frame-splittable-p
+               (frame)
+               (when (and (window--frame-usable-p frame)
+                          (not (frame-parameter frame 'unsplittable))) frame)))
+      (or (frame-splittable-p selected-frame)
+          (frame-splittable-p last-non-minibuffer-frame)))))
 
 (defun shackle--split-some-window (frame alist)
   "Return a window if splitting any window was successful.
@@ -345,7 +347,7 @@ the :ratio key with a floating point value."
               (when (plist-get plist :select)
                 (select-window window t))
               (unless (cdr (assq 'inhibit-switch-frame alist))
-                (window--maybe-raise-frame (window-frame window)))
+                (window--maybe-raise-frame frame))
               (add-hook 'window-configuration-change-hook
                         'shackle--restore-window-configuration))))))))
 
