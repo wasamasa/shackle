@@ -123,13 +123,6 @@ deleting the window.
 Use this option to specify a different ratio than the default
 value of 0.5 (see `shackle-default-ratio').
 
-:defer and t
-
-Use this option to defer cleaning up an aligned window.  This is
-used to avoid errors with Emacs packages that clean up their
-buffers themselves and rely on their window being kept open until
-they finally delete it themselves, such as `helm'.
-
 :frame and t
 
 Pop to a frame instead of window.
@@ -152,7 +145,6 @@ different value or use a placeholder as key."
                                              (const :tag "Left" 'left)
                                              (const :tag "Right" 'right)))
                                     (:ratio float)
-                                    (:defer boolean)
                                     (:frame boolean))))
   :group 'shackle)
 
@@ -270,43 +262,6 @@ key with t as value."
           (unless (cdr (assq 'inhibit-switch-frame alist))
             (window--maybe-raise-frame (window-frame window))))))))
 
-(defvar shackle--in-progress nil
-  "When t, cleanup must not be done yet.
-This is because shackle is still doing something with the
-windows, like selecting one after displaying it successfully.
-Used by `shackle--restore-window-configuration' for aligned
-windows.")
-
-(defvar shackle--last-saved-window-configuration nil
-  "Stores the last saved window configuration.
-Only used for aligned windows.")
-
-(defvar shackle--last-aligned-buffer nil
-  "Stores the last aligned buffer.")
-
-(defvar shackle--last-aligned-window nil
-  "Stores the last aligned window.")
-
-(defun shackle--restore-window-configuration ()
-  "Hook function run to clean up an aligned buffer.
-Since the hook in question isn't run with arguments, the
-\"arguments\" are taken from `shackle--in-progress',
-`shackle--last-aligned-buffer' and
-`shackle--last-aligned-window'."
-  (when (and (not shackle--in-progress)
-             shackle--last-saved-window-configuration
-             shackle--last-aligned-buffer
-             (or (equal shackle--last-aligned-buffer (last-buffer))
-                 (not (window-live-p shackle--last-aligned-window))))
-    (unless (plist-get (shackle-match shackle--last-aligned-buffer) :defer)
-      (remove-hook 'window-configuration-change-hook
-                   'shackle--restore-window-configuration)
-      (set-window-configuration (car shackle--last-saved-window-configuration))
-      (goto-char (cadr shackle--last-saved-window-configuration))
-      (setq shackle--last-saved-window-configuration nil)
-      (setq shackle--last-aligned-buffer nil)
-      (setq shackle--last-aligned-window nil))))
-
 (defun shackle--display-buffer-aligned-window (buffer alist plist)
   "Display BUFFER in an aligned window.
 ALIST is passed to `window--display-buffer' internally.
@@ -314,14 +269,7 @@ Optionally use a different alignment and/or ratio if PLIST
 contains the :alignment key with an alignment different than the
 default one in `shackle-default-alignment' and/or PLIST contains
 the :ratio key with a floating point value."
-  (let* ((frame (shackle--splittable-frame))
-         ;; instead of just deleting every other window except the
-         ;; currently selected one, the minibuffer one is dealt with
-         ;; specifically by using the most recently used
-         ;; non-minibuffer window in that case
-         (selected-window (if (window-minibuffer-p)
-                              (get-mru-window frame t)
-                            (selected-window))))
+  (let ((frame (shackle--splittable-frame)))
     (when frame
       (let* ((alignment-argument (plist-get plist :align))
              (alignments '(above below left right))
@@ -336,20 +284,14 @@ the :ratio key with a floating point value."
                 (> new-size (- old-size (if horizontal window-min-width
                                           window-min-height))))
             (error "Invalid alignment ratio, aborting")
-          (setq shackle--last-saved-window-configuration
-                (list (current-window-configuration) (point)))
-          (setq shackle--last-aligned-buffer buffer)
-          (delete-other-windows selected-window)
-          (let* ((window (split-window selected-window new-size alignment)))
-            (setq shackle--last-aligned-window window)
+          (let ((window (split-window (frame-root-window frame)
+                                      new-size alignment)))
             (prog1 (window--display-buffer buffer window 'window alist
                                            display-buffer-mark-dedicated)
               (when (plist-get plist :select)
                 (select-window window t))
               (unless (cdr (assq 'inhibit-switch-frame alist))
-                (window--maybe-raise-frame frame))
-              (add-hook 'window-configuration-change-hook
-                        'shackle--restore-window-configuration))))))))
+                (window--maybe-raise-frame frame)))))))))
 
 (defun shackle-display-buffer (buffer alist plist)
   "Display BUFFER according to ALIST and PLIST.
@@ -359,7 +301,6 @@ majority of code was lifted from.  Additionally to BUFFER and
 ALIST this function takes an optional PLIST argument which allows
 it to do useful things such as selecting the popped up window
 afterwards."
-  (setq shackle--in-progress t)
   (cond
    ((shackle--display-buffer-reuse buffer alist plist))
    ((or (plist-get plist :same)
@@ -377,8 +318,7 @@ afterwards."
    ((plist-get plist :align)
     (shackle--display-buffer-aligned-window buffer alist plist))
    (t
-    (shackle--display-buffer-popup-window buffer alist plist)))
-  (setq shackle--in-progress nil))
+    (shackle--display-buffer-popup-window buffer alist plist))))
 
 ;;;###autoload
 (define-minor-mode shackle-mode
