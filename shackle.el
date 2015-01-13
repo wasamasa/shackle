@@ -217,7 +217,7 @@ Optionally select the window afterwards if either
 the :select key with t as value."
   (let ((window (display-buffer-reuse-window buffer alist)))
     (prog1 window
-      (when (and window
+      (when (and window (window-live-p window)
                  (or shackle-select-reused-windows
                      (plist-get plist :select)))
         (select-window window)))))
@@ -257,7 +257,7 @@ key with t as value."
         (prog1 (window--display-buffer
                 buffer window 'window alist
                 display-buffer-mark-dedicated)
-          (when (plist-get plist :select)
+          (when (and (plist-get plist :select) (window-live-p window))
             (select-window window t))
           (unless (cdr (assq 'inhibit-switch-frame alist))
             (window--maybe-raise-frame (window-frame window))))))))
@@ -288,7 +288,7 @@ the :ratio key with a floating point value."
                                       new-size alignment)))
             (prog1 (window--display-buffer buffer window 'window alist
                                            display-buffer-mark-dedicated)
-              (when (plist-get plist :select)
+              (when (and (plist-get plist :select) (window-live-p window))
                 (select-window window t))
               (unless (cdr (assq 'inhibit-switch-frame alist))
                 (window--maybe-raise-frame frame)))))))))
