@@ -246,6 +246,12 @@ ALIST is passed to `window--display-buffer' internally."
           (unless (cdr (assq 'inhibit-switch-frame alist))
             (window--maybe-raise-frame frame)))))))
 
+(defvar shackle-last-buffer nil
+  "Last buffer displayed with shackle.")
+
+(defvar shackle-last-window nil
+  "Last window displayed with shackle.")
+
 (defun shackle--display-buffer-popup-window (buffer alist plist)
   "Display BUFFER in a popped up window.
 ALIST is passed to `window--display-buffer' internally.
@@ -257,6 +263,9 @@ key with t as value."
         (prog1 (window--display-buffer
                 buffer window 'window alist
                 display-buffer-mark-dedicated)
+          (when window
+            (setq shackle-last-window window
+                  shackle-last-buffer buffer))
           (when (and (plist-get plist :select) (window-live-p window))
             (select-window window t))
           (unless (cdr (assq 'inhibit-switch-frame alist))
@@ -288,6 +297,9 @@ the :ratio key with a floating point value."
                                       new-size alignment)))
             (prog1 (window--display-buffer buffer window 'window alist
                                            display-buffer-mark-dedicated)
+              (when window
+                (setq shackle-last-window window
+                      shackle-last-buffer buffer))
               (when (and (plist-get plist :select) (window-live-p window))
                 (select-window window t))
               (unless (cdr (assq 'inhibit-switch-frame alist))
