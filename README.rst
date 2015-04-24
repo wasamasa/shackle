@@ -112,7 +112,7 @@ windows by aligning them at the bottom with a ratio of 40%:
 
 Once you're done customizing ``shackle-rules``, use ``M-x
 shackle-mode`` to enable ``shackle`` interactively.  To enable it
-automatically on startup, add ``(shackle-mode -1)`` to your init file.
+automatically on startup, add ``(shackle-mode)`` to your init file.
 
 Internals
 ---------
