@@ -18,7 +18,7 @@ Install via Marmalade or MELPA via ``M-x package-install RET shackle``
 or download ``shackle.el``, place it into a suitable location such as
 ``~/.emacs.d/vendor/`` and add the following to your init file:
 
-.. code:: cl
+.. code:: elisp
 
     (add-to-list 'load-path (expand-file-name "~/.emacs.d/vendor/"))
 
@@ -87,7 +87,7 @@ The following example configuration enables the rather radical
 behaviour of always reusing the current window in order to avoid
 unwanted window splitting:
 
-.. code:: cl
+.. code:: elisp
 
     (setq shackle-rules
           '((t :same t)))
@@ -96,7 +96,7 @@ This one on the other hand provides a less intrusive user experience
 to select all windows by default unless they are spawned by
 ``compilation-mode`` and demonstrates how to use exceptions:
 
-.. code:: cl
+.. code:: elisp
 
     (setq shackle-rules
           '((compilation-mode :noselect t)
