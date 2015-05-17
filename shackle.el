@@ -83,10 +83,12 @@ splits the window in half, a value of 0.33 in a third, etc."
 (defcustom shackle-rules nil
   "Association list of rules what to do with windows.
 Each rule consists of a condition and a property list.  The
-condition can be a symbol, a string or t.  If it's a symbol,
-match the buffer's major mode.  If it's a string, match the name
-of the buffer.  Use the following option in the property list to
-use regular expression matching:
+condition can be a symbol, a string, a list of either type or t.
+If it's a symbol, match the buffer's major mode.  If it's a
+string, match the name of the buffer.  A list of symbols or
+strings requires a match of any element as described earlier for
+its type.  Use the following option in the property list to use
+regular expression matching:
 
 :regexp and t
 
@@ -161,7 +163,10 @@ PLIST is returned."
               (and (stringp condition)
                    (or (string= condition buffer-name)
                        (and (plist-get plist :regexp)
-                            (string-match condition buffer-name)))))
+                            (string-match condition buffer-name))))
+              (and (consp condition)
+                   (cl-some (lambda (c) (shackle--match buffer-or-name c plist))
+                            condition)))
       plist)))
 
 (defun shackle-match (buffer-or-name)

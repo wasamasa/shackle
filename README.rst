@@ -23,7 +23,7 @@ or download ``shackle.el``, place it into a suitable location such as
     (add-to-list 'load-path (expand-file-name "~/.emacs.d/vendor/"))
 
 Usage
---------------
+-----
 
 First you need to customize ``shackle-rules``, this can be done via
 ``M-x customize-group RET shackle`` or in your init file.
@@ -32,10 +32,12 @@ As the name of the variable suggests, it's a list of rules.  Each rule
 consists of a condition and a set of key-value combinations that tell
 what to do with the buffer in question.
 
-The condition can be either a symbol, a string or ``t``.  A symbol is
-interpreted as the major mode of the buffer to match, a string as the
-name of the buffer (which can be turned into regexp matching by using
-the ``:regexp`` key with a value of ``t`` in the key-value part) and
+The condition can be either a symbol, a string, a list of either or
+``t``.  A symbol is interpreted as the major mode of the buffer to
+match, a string as the name of the buffer (which can be turned into
+regexp matching by using the ``:regexp`` key with a value of ``t`` in
+the key-value part), a list groups either symbols or strings (as
+described earlier) while requiring at least one element to match and
 ``t`` as the fallback rule to follow when no other match succeeds.  If
 you set up a fallback rule, make sure it's the last rule in
 ``shackle-rules``, otherwise it will always be used.
