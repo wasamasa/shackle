@@ -191,18 +191,20 @@ This uses `shackle-display-buffer' internally, BUFFER and ALIST
 take the form `display-buffer-alist' specifies."
   (shackle-display-buffer buffer alist (shackle-match buffer)))
 
+(defun shackle--frame-splittable-p (frame)
+  "Return FRAME if it is splittable."
+  (when (and (window--frame-usable-p frame)
+             (not (frame-parameter frame 'unsplittable)))
+    frame))
+
 (defun shackle--splittable-frame ()
   "Return a splittable frame to work on.
 This can be either the selected frame or the last frame that's
 not displaying a lone minibuffer."
   (let ((selected-frame (selected-frame))
         (last-non-minibuffer-frame (last-nonminibuffer-frame)))
-    (cl-flet ((frame-splittable-p
-               (frame)
-               (when (and (window--frame-usable-p frame)
-                          (not (frame-parameter frame 'unsplittable))) frame)))
-      (or (frame-splittable-p selected-frame)
-          (frame-splittable-p last-non-minibuffer-frame)))))
+    (or (shackle--frame-splittable-p selected-frame)
+        (shackle--frame-splittable-p last-non-minibuffer-frame))))
 
 (defun shackle--split-some-window (frame alist)
   "Return a window if splitting any window was successful.
