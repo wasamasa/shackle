@@ -138,7 +138,7 @@ different value or use a placeholder as key."
                                     (:select boolean)
                                     (:same boolean)
                                     (:popup boolean)
-                                    (:same boolean)
+                                    (:other boolean)
                                     (:align
                                      (choice :value t
                                              (const :tag "Default" t)
