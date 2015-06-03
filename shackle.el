@@ -238,14 +238,19 @@ ALIST is passed to `window--display-buffer' internally."
     ;; default to "q" in buffers derived from `special-mode'
     (set-window-parameter (selected-window) 'quit-restore nil)))
 
-(defun shackle--display-buffer-frame (buffer alist)
+(defun shackle--display-buffer-frame (buffer alist plist)
   "Display BUFFER in a popped up frame.
-ALIST is passed to `window--display-buffer' internally."
+ALIST is passed to `window--display-buffer' internally.  If PLIST
+contains the :other key with t as value, reuse the next available
+frame if possible, otherwise pop up a new frame."
   (let* ((params (cdr (assq 'pop-up-frame-parameters alist)))
          (pop-up-frame-alist (append params pop-up-frame-alist))
          (fun pop-up-frame-function))
     (when fun
-      (let* ((frame (funcall fun))
+      (let* ((frame (if (and (plist-get plist :other)
+                             (> (length (frames-on-display-list)) 1))
+                        (next-frame nil 'visible)
+                      (funcall fun)))
              (window (frame-selected-window frame)))
         (prog1 (window--display-buffer
                 buffer window 'frame alist
@@ -333,7 +338,7 @@ afterwards."
                   (not (cdr (assq 'inhibit-same-window alist))))))
     (shackle--display-buffer-same buffer alist))
    ((plist-get plist :frame)
-    (shackle--display-buffer-frame buffer alist))
+    (shackle--display-buffer-frame buffer alist plist))
    ((plist-get plist :align)
     (shackle--display-buffer-aligned-window buffer alist plist))
    (t
