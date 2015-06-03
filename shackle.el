@@ -266,12 +266,15 @@ frame if possible, otherwise pop up a new frame."
 
 (defun shackle--display-buffer-popup-window (buffer alist plist)
   "Display BUFFER in a popped up window.
-ALIST is passed to `window--display-buffer' internally.
-Optionally select window afterwards if PLIST contains the :select
-key with t as value."
+ALIST is passed to `window--display-buffer' internally.  If PLIST
+contains the :other key with t as value, reuse the next available
+window if possible.  Optionally select window afterwards if PLIST
+contains the :select key with t as value."
   (let ((frame (shackle--splittable-frame)))
     (when frame
-      (let ((window (shackle--split-some-window frame alist)))
+      (let ((window (if (and (plist-get plist :other) (not (one-window-p)))
+                        (next-window nil 'nominibuf)
+                      (shackle--split-some-window frame alist))))
         (prog1 (window--display-buffer
                 buffer window 'window alist
                 display-buffer-mark-dedicated)
