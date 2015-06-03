@@ -50,6 +50,13 @@ The following key-value pairs are available:
   option makes this the default for windows already displaying the
   buffer.
 
+- ``:other`` and ``t``:
+
+  Reuse the window ``other-window`` would select if there's more than
+  one window open, otherwise pop up a new window.  When used in
+  combination with the ``:frame`` key, do the equivalent with
+  ``other-frame`` or a new frame.
+
 - ``:same`` and ``t``:
 
   Display buffer in the current window.
