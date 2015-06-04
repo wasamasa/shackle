@@ -104,6 +104,12 @@ Make sure the window that popped up is selected afterwards.
 Customize `shackle-select-reused-windows' to make this the
 default for windows already displaying the buffer.
 
+:inhibit-window-quit and t
+
+Modify the behaviour of `quit-window' to not delete the window.
+This option is recommended in combination with :same, but can be
+used with other keys like :other as well.
+
 :same and t
 
 Don't pop up any window and reuse the currently active one.
@@ -215,6 +221,10 @@ for splitting.  ALIST is passed to `window--try-to-split-window'
 internally."
   (or (window--try-to-split-window (get-largest-window frame t) alist)
       (window--try-to-split-window (get-lru-window frame t) alist)))
+
+(defun shackle--inhibit-window-quit (window)
+  "Keep `quit-window' in WINDOW from deleting the window."
+  (set-window-parameter window 'quit-restore nil))
 
 (defun shackle--display-buffer-reuse (buffer alist)
   "Attempt reusing a window BUFFER is already displayed in.
@@ -340,6 +350,8 @@ it to do useful things such as selecting the popped up window
 afterwards and/or inhibiting `quit-window' from deleting the
 window."
   (let ((window (shackle--display-buffer buffer alist plist)))
+    (when (plist-get plist :inhibit-window-quit)
+      (shackle--inhibit-window-quit window))
     (when (and (plist-get plist :select) (window-live-p window))
       (select-window window t))
     window))

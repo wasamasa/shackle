@@ -50,6 +50,14 @@ The following key-value pairs are available:
   option makes this the default for windows already displaying the
   buffer.
 
+- ``:inhibit-window-quit`` and ``t``:
+
+  Special buffers usually have ``q`` bound to ``quit-window`` which
+  commonly buries the buffer *and* deletes the window.  This option
+  inhibits the latter which is especially useful in combination with
+  ``:same``, but can also be used with other keys like ``:other`` as
+  well.
+
 - ``:other`` and ``t``:
 
   Reuse the window ``other-window`` would select if there's more than
