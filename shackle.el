@@ -323,6 +323,7 @@ the :ratio key with a floating point value."
   "Internal function for `shackle-display-buffer'.
 Displays BUFFER according to ALIST and PLIST."
   (cond
+   ((plist-get plist :ignore) 'fail)
    ((shackle--display-buffer-reuse buffer alist))
    ((or (plist-get plist :same)
         ;; there is `display-buffer--same-window-action' which things

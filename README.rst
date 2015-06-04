@@ -58,6 +58,14 @@ The following key-value pairs are available:
   ``:same``, but can also be used with other keys like ``:other`` as
   well.
 
+- ``:ignore`` and ``t``:
+
+  Skip handling the display of the buffer in question.  Keep in mind
+  that while this avoids switching buffers, popping up windows and
+  displaying frames, it does not inhibit what may have preceded this
+  command, such as the creation or update of the buffer to be
+  displayed.
+
 - ``:other`` and ``t``:
 
   Reuse the window ``other-window`` would select if there's more than
