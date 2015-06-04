@@ -131,6 +131,14 @@ Once you're done customizing ``shackle-rules``, use ``M-x
 shackle-mode`` to enable ``shackle`` interactively.  To enable it
 automatically on startup, add ``(shackle-mode)`` to your init file.
 
+Breaking Changes
+----------------
+
+- 0.5.0:
+
+  ``:same`` does no longer use ``:inhibit-window-quit`` implicitly,
+  you'll need to make explicitly use of it.
+
 Internals
 ---------
 
