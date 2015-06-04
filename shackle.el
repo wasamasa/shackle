@@ -110,13 +110,25 @@ Modify the behaviour of `quit-window' to not delete the window.
 This option is recommended in combination with :same, but can be
 used with other keys like :other as well.
 
-:same and t
+:ignore and t
 
-Don't pop up any window and reuse the currently active one.
+Ignore the request of displaying a buffer completely.  Note that
+this does *not* inhibit preceding actions such as creation or
+update of the buffer in question.
+
+:other and t
+
+Reuse the other window if there's more than one window open,
+otherwise pop up a new window.  Can be used with :frame to do the
+equivalent with the other frame and a new frame.
 
 :popup and t
 
 Pop up a new window instead of reusing the current one.
+
+:same and t
+
+Don't pop up any window and reuse the currently active one.
 
 :align and t or either of 'above, 'below, 'left and 'right
 
@@ -142,9 +154,11 @@ different value or use a placeholder as key."
                 :value-type (plist :options
                                    ((:regexp boolean)
                                     (:select boolean)
+                                    (:inhibit-window-quit boolean)
+                                    (:ignore boolean)
+                                    (:other boolean)
                                     (:same boolean)
                                     (:popup boolean)
-                                    (:other boolean)
                                     (:align
                                      (choice :value t
                                              (const :tag "Default" t)
