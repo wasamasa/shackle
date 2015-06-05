@@ -147,7 +147,9 @@ Breaking Changes
 - 0.5.0:
 
   ``:same`` does no longer use ``:inhibit-window-quit`` implicitly,
-  you'll need to make explicitly use of it.
+  you'll need to make explicitly use of it.  So, to get the old
+  behaviour for ``(condition :same t)`` use ``(condition :same t
+  :inhibit-window-quit t)`` instead.
 
 Internals
 ---------
