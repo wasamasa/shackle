@@ -110,6 +110,13 @@ To have an exception to a fallback rule, use the condition of your
 choice and either don't list the key-value pair, use a different value
 or use a placeholder key with any value.
 
+Once you're done customizing ``shackle-rules``, use ``M-x
+shackle-mode`` to enable ``shackle`` interactively.  To enable it
+automatically on startup, add ``(shackle-mode)`` to your init file.
+
+Examples
+--------
+
 The following example configuration enables the rather radical
 behaviour of always reusing the current window in order to avoid
 unwanted window splitting:
@@ -136,10 +143,6 @@ windows by aligning them at the bottom with a ratio of 40%:
 
     (setq shackle-rules
           '(("\\`\\*helm.*?\\*\\'" :regexp t :align t :ratio 0.4)))
-
-Once you're done customizing ``shackle-rules``, use ``M-x
-shackle-mode`` to enable ``shackle`` interactively.  To enable it
-automatically on startup, add ``(shackle-mode)`` to your init file.
 
 Breaking Changes
 ----------------
