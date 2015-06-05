@@ -56,8 +56,9 @@ The following key-value pairs are available:
   Special buffers usually have ``q`` bound to ``quit-window`` which
   commonly buries the buffer *and* deletes the window.  This option
   inhibits the latter which is especially useful in combination with
-  ``:same``, but can also be used with other keys like ``:other`` as
-  well.
+  ``:same`` (as ``q`` deleting the reused window is weird behaviour
+  for more than one visible window), but can also be used with other
+  keys like ``:other`` as well.
 
 - ``:ignore`` and ``t``:
 
