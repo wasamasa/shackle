@@ -83,18 +83,19 @@ splits the window in half, a value of 0.33 in a third, etc."
 (defcustom shackle-rules nil
   "Association list of rules what to do with windows.
 Each rule consists of a condition and a property list.  The
-condition can be a symbol, a string, a list of either type or t.
-If it's a symbol, match the buffer's major mode.  If it's a
-string, match the name of the buffer.  A list of symbols or
-strings requires a match of any element as described earlier for
-its type.  Use the following option in the property list to use
-regular expression matching:
+condition can be a symbol, a string or a list of either type.  If
+it's a symbol, match the buffer's major mode.  If it's a string,
+match the name of the buffer.  A list of symbols or strings
+requires a match of any element as described earlier for its
+type.  Use the following option in the property list to use
+regular expression matching on a buffer name:
 
 :regexp and t
 
-If the condition is t, turn the property list into the fallback
-to use for every invocation of `display-buffer' with an unmatched
-condition.
+A default rule can be set up with `shackle-default-rule'.
+To make an exception to `shackle-default-rule', use the condition
+you want to exclude and either not use the key in question, use a
+different value or use a placeholder as key.
 
 The property list accepts the following keys and values:
 
@@ -145,11 +146,7 @@ value of 0.5 (see `shackle-default-ratio').
 
 :frame and t
 
-Pop to a frame instead of window.
-
-To make an exception to a fallback rule, use the condition you
-want to exclude and either not use the key in question, use a
-different value or use a placeholder as key."
+Pop to a frame instead of window."
   :type '(alist :key-type (choice symbol string)
                 :value-type (plist :options
                                    ((:regexp boolean)
@@ -170,6 +167,28 @@ different value or use a placeholder as key."
                                     (:frame boolean))))
   :group 'shackle)
 
+(defcustom shackle-default-rule nil
+  "Default rule to use when no other matching rule found.
+It's a plist with the same keys and values as described in
+`shackle-rules'."
+  :type '(plist :options ((:regexp boolean)
+                          (:select boolean)
+                          (:inhibit-window-quit boolean)
+                          (:ignore boolean)
+                          (:other boolean)
+                          (:same boolean)
+                          (:popup boolean)
+                          (:align
+                           (choice :value t
+                                   (const :tag "Default" t)
+                                   (const :tag "Above" 'above)
+                                   (const :tag "Below" 'below)
+                                   (const :tag "Left" 'left)
+                                   (const :tag "Right" 'right)))
+                          (:ratio float)
+                          (:frame boolean)))
+  :group 'shackle)
+
 (defun shackle--match (buffer-or-name condition plist)
   "Internal match function.
 Used by `shackle-match', when BUFFER-OR-NAME matches CONDITION,
@@ -177,8 +196,7 @@ PLIST is returned."
   (let* ((buffer (get-buffer buffer-or-name))
          (buffer-major-mode (buffer-local-value 'major-mode buffer))
          (buffer-name (buffer-name buffer)))
-    (when (or (eq t condition) ; fallback case
-              (and (symbolp condition)
+    (when (or (and (symbolp condition)
                    (eq condition buffer-major-mode))
               (and (stringp condition)
                    (or (string= condition buffer-name)
@@ -197,7 +215,8 @@ there is a match, if yes it returns a property list which
 `shackle-display-buffer-action' use."
   (cl-loop for (condition . plist) in shackle-rules
            when (shackle--match buffer-or-name condition plist)
-           return plist))
+           return plist
+           finally return shackle-default-rule))
 
 (defun shackle-display-buffer-condition (buffer action)
   "Return key-value pairs when BUFFER match any shackle condition.

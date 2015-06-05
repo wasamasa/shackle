@@ -33,15 +33,12 @@ As the name of the variable suggests, it's a list of rules.  Each rule
 consists of a condition and a set of key-value combinations that tell
 what to do with the buffer in question.
 
-The condition can be either a symbol, a string, a list of either or
-``t``.  A symbol is interpreted as the major mode of the buffer to
-match, a string as the name of the buffer (which can be turned into
-regexp matching by using the ``:regexp`` key with a value of ``t`` in
-the key-value part), a list groups either symbols or strings (as
-described earlier) while requiring at least one element to match and
-``t`` as the fallback rule to follow when no other match succeeds.  If
-you set up a fallback rule, make sure it's the last rule in
-``shackle-rules``, otherwise it will always be used.
+The condition can be either a symbol, a string or a list of either.  A
+symbol is interpreted as the major mode of the buffer to match, a
+string as the name of the buffer (which can be turned into regexp
+matching by using the ``:regexp`` key with a value of ``t`` in the
+key-value part) and a list groups either symbols or strings (as
+described earlier) while requiring at least one element to match.
 
 The following key-value pairs are available:
 
@@ -106,9 +103,16 @@ The following key-value pairs are available:
 
   Pop buffer to a frame instead of a window.
 
-To have an exception to a fallback rule, use the condition of your
-choice and either don't list the key-value pair, use a different value
-or use a placeholder key with any value.
+A default rule can be set up by customizing ``shackle-default-rule``.
+Its format follows the plist as used by ``shackle-rules`` and the
+default rule is used in case none of the rules in ``shackle-rules``
+yield a match.  To have an exception to the default rule, you can use
+the condition of your choice and either don't list the key-value pair
+at all, use a different value (like ``nil`` for the keys taking
+boolean values) or use a placeholder key with any value (like
+``:noselect`` instead of ``:select``).  This is merely done to clearly
+indicate the purpose of the respective rule, not following this
+recommendation is another fine option.
 
 Once you're done customizing ``shackle-rules``, use ``M-x
 shackle-mode`` to enable ``shackle`` interactively.  To enable it
@@ -153,6 +157,22 @@ Breaking Changes
   you'll need to make explicitly use of it.  So, to get the old
   behaviour for ``(condition :same t)`` use ``(condition :same t
   :inhibit-window-quit t)`` instead.
+
+- 0.6.0:
+
+  As suggested by @Benaiah, explicitly customizing a default rule
+  would be much less confusing for users than knowing about ``t``
+  being special-cased in ``shackle-rules``.  Therefore, a rule with
+  ``t`` as condition should be removed from ``shackle-rules`` and
+  ``shackle-default-rule`` customized to hold its action instead.
+  Here's a demonstration of what would change for the second example:
+
+  .. code:: elisp
+
+      (setq shackle-rules
+            '((compilation-mode :noselect t))
+            shackle-default-rule
+            '(:select t))
 
 Internals
 ---------
