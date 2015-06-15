@@ -4,7 +4,7 @@
 
 ;; Author: Vasilij Schneidermann <v.schneidermann@gmail.com>
 ;; URL: https://github.com/wasamasa/shackle
-;; Version: 0.6.0
+;; Version: 0.6.1
 ;; Keywords: convenience
 ;; Package-Requires: ((cl-lib "0.5"))
 
