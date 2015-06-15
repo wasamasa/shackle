@@ -45,7 +45,8 @@
 (defcustom shackle-lighter " ⛓"
   "Lighter for `shackle-mode'."
   :type 'string
-  :group 'shackle)
+  :group 'shackle
+  :risky t)
 
 (defcustom shackle-select-reused-windows nil
   "Make Emacs select reused windows by default?
