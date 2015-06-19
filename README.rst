@@ -156,7 +156,9 @@ Breaking Changes
   ``:same`` does no longer use ``:inhibit-window-quit`` implicitly,
   you'll need to make explicitly use of it.  So, to get the old
   behaviour for ``(condition :same t)`` use ``(condition :same t
-  :inhibit-window-quit t)`` instead.
+  :inhibit-window-quit t)`` instead.  Alternatively you can customize
+  the 0.7.0 ``shackle-inhibit-window-quit-on-same-windows`` option to
+  have it for all buffers.
 
 - 0.6.0:
 

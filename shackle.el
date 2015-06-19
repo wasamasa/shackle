@@ -56,6 +56,15 @@ otherwise only do that if the :select keyword is present."
   :type 'boolean
   :group 'shackle)
 
+(defcustom shackle-inhibit-window-quit-on-same-windows nil
+  "Make Emacs inhibit quitting same windows by default?
+When t, a buffer that has been displayed by switching to it in
+the same window is exempt from `quit-window' closing its window,
+otherwise only do that if the :inhibit-window-quit keyword is
+present."
+  :type 'boolean
+  :group 'shackle)
+
 (defcustom shackle-default-alignment 'below
   "Default alignment of aligned windows.
 It may be one of the following values:
@@ -110,7 +119,10 @@ default for windows already displaying the buffer.
 
 Modify the behaviour of `quit-window' to not delete the window.
 This option is recommended in combination with :same, but can be
-used with other keys like :other as well.
+used with other keys like :other as well.  Customize
+`shackle-inhibit-window-quit-on-same-windows' to make this the
+default for every buffer that was displayed by switching to it in
+the same window.
 
 :ignore and t
 
@@ -274,7 +286,10 @@ afterwards."
 (defun shackle--display-buffer-same (buffer alist)
   "Display BUFFER in the currently selected window.
 ALIST is passed to `window--display-buffer' internally."
-  (window--display-buffer buffer (selected-window) 'window alist))
+  (prog1
+      (window--display-buffer buffer (selected-window) 'window alist)
+    (when shackle-inhibit-window-quit-on-same-windows
+      (shackle--inhibit-window-quit window))))
 
 (defun shackle--display-buffer-frame (buffer alist plist)
   "Display BUFFER in a popped up frame.
