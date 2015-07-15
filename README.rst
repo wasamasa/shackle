@@ -127,8 +127,7 @@ unwanted window splitting:
 
 .. code:: elisp
 
-    (setq shackle-rules
-          '((t :same t)))
+    (setq shackle-default-rule '(:same t))
 
 This one on the other hand provides a less intrusive user experience
 to select all windows by default unless they are spawned by
@@ -136,17 +135,15 @@ to select all windows by default unless they are spawned by
 
 .. code:: elisp
 
-    (setq shackle-rules
-          '((compilation-mode :noselect t)
-            (t :select t)))
+    (setq shackle-rules '((compilation-mode :noselect t))
+          shackle-default-rule '(:select t))
 
 My final example tames `helm <https://github.com/emacs-helm/helm>`_
 windows by aligning them at the bottom with a ratio of 40%:
 
 .. code:: elisp
 
-    (setq shackle-rules
-          '(("\\`\\*helm.*?\\*\\'" :regexp t :align t :ratio 0.4)))
+    (setq shackle-rules '(("\\`\\*helm.*?\\*\\'" :regexp t :align t :ratio 0.4)))
 
 Breaking Changes
 ----------------
