@@ -160,47 +160,51 @@ value of 0.5 (see `shackle-default-ratio').
 :frame and t
 
 Pop to a frame instead of window."
-  :type '(alist :key-type (choice symbol string)
-                                  (repeat (choice symbol string))
+  :type '(alist :key-type (choice :tag "Condition"
+                                  (symbol :tag "Major mode")
+                                  (string :tag "Buffer name")
+                                  (repeat (choice
+                                           (symbol :tag "Major mode")
+                                           (string :tag "Buffer name"))))
                 :value-type (plist :options
-                                   ((:regexp boolean)
-                                    (:select boolean)
-                                    (:inhibit-window-quit boolean)
-                                    (:ignore boolean)
-                                    (:other boolean)
-                                    (:same boolean)
-                                    (:popup boolean)
-                                    (:align
-                                     (choice :value t
+                                   (((const :tag "Regexp" :regexp) boolean)
+                                    ((const :tag "Select" :select) boolean)
+                                    ((const :tag "Inhibit window quit" :inhibit-window-quit) boolean)
+                                    ((const :tag "Ignore" :ignore) boolean)
+                                    ((const :tag "Other" :other) boolean)
+                                    ((const :tag "Same" :same) boolean)
+                                    ((const :tag "Popup" :popup) boolean)
+                                    ((const :tag "Align" :align)
+                                     (choice :tag "Alignment" :value t
                                              (const :tag "Default" t)
                                              (const :tag "Above" 'above)
                                              (const :tag "Below" 'below)
                                              (const :tag "Left" 'left)
                                              (const :tag "Right" 'right)))
-                                    (:ratio float)
-                                    (:frame boolean))))
+                                    ((const :tag "Ratio" :ratio) float)
+                                    ((const :tag "Frame" :frame) boolean))))
   :group 'shackle)
 
 (defcustom shackle-default-rule nil
   "Default rule to use when no other matching rule found.
 It's a plist with the same keys and values as described in
 `shackle-rules'."
-  :type '(plist :options ((:regexp boolean)
-                          (:select boolean)
-                          (:inhibit-window-quit boolean)
-                          (:ignore boolean)
-                          (:other boolean)
-                          (:same boolean)
-                          (:popup boolean)
-                          (:align
+  :type '(plist :options (((const :tag "Regexp" :regexp) boolean)
+                          ((const :tag "Select" :select) boolean)
+                          ((const :tag "Inhibit window quit" :inhibit-window-quit) boolean)
+                          ((const :tag "Ignore" :ignore) boolean)
+                          ((const :tag "Other" :other) boolean)
+                          ((const :tag "Same" :same) boolean)
+                          ((const :tag "Popup" :popup) boolean)
+                          ((const :tag "Align" :align)
                            (choice :value t
                                    (const :tag "Default" t)
                                    (const :tag "Above" 'above)
                                    (const :tag "Below" 'below)
                                    (const :tag "Left" 'left)
                                    (const :tag "Right" 'right)))
-                          (:ratio float)
-                          (:frame boolean)))
+                          ((const :tag "Ratio" :ratio) float)
+                          ((const :tag "Frame" :frame) boolean)))
   :group 'shackle)
 
 (defun shackle--match (buffer-or-name condition plist)
