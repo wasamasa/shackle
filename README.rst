@@ -138,7 +138,7 @@ to select all windows by default unless they are spawned by
     (setq shackle-rules '((compilation-mode :noselect t))
           shackle-default-rule '(:select t))
 
-My final example tames `helm <https://github.com/emacs-helm/helm>`_
+My final example tames `Helm <https://github.com/emacs-helm/helm>`_
 windows by aligning them at the bottom with a ratio of 40%:
 
 .. code:: elisp
