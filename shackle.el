@@ -161,6 +161,7 @@ value of 0.5 (see `shackle-default-ratio').
 
 Pop to a frame instead of window."
   :type '(alist :key-type (choice symbol string)
+                                  (repeat (choice symbol string))
                 :value-type (plist :options
                                    ((:regexp boolean)
                                     (:select boolean)
