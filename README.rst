@@ -189,7 +189,8 @@ that ought to use it, but doesn't conform, chances are you'll have to
 speak with upstream instead of me to have it fixed.  Another thing to
 be aware of is that if you've set up a fallback rule, it may take over
 the Emacs defaults which can play less well with packages (such as
-`Magit <http://github.com/magit/magit>`_).  Once you find out what's
+`Magit <http://github.com/magit/magit>`_ or `Helm
+<https://github.com/emacs-helm/helm>`_).  Once you find out what's
 causing the problem, you can add an exception rule to fix it.
 
 Contributing
