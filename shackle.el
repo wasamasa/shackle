@@ -102,6 +102,10 @@ regular expression matching on a buffer name:
 
 :regexp and t
 
+As a special case, a list of the (:custom function) form
+will call the supplied predicate with the buffer to be displayed
+as value and be interpreted as a match for a non-nil return value.
+
 A default rule can be set up with `shackle-default-rule'.
 To make an exception to `shackle-default-rule', use the condition
 you want to exclude and either not use the key in question, use a
@@ -114,6 +118,13 @@ The property list accepts the following keys and values:
 Make sure the window that popped up is selected afterwards.
 Customize `shackle-select-reused-windows' to make this the
 default for windows already displaying the buffer.
+
+:custom and a function name or lambda
+
+Override with a custom action.  Takes a function as argument
+which is called with BUFFER-OR-NAME, ALIST and PLIST as argument.
+This mode of operation allows you to pick one of the existing
+actions, but by your own conditions.
 
 :inhibit-window-quit and t
 
@@ -165,10 +176,13 @@ Pop to a frame instead of window."
                                   (string :tag "Buffer name")
                                   (repeat (choice
                                            (symbol :tag "Major mode")
-                                           (string :tag "Buffer name"))))
+                                           (string :tag "Buffer name")))
+                                  (list :tag "Custom function"
+                                        (const :tag "Custom" :custom) function))
                 :value-type (plist :options
                                    (((const :tag "Regexp" :regexp) boolean)
                                     ((const :tag "Select" :select) boolean)
+                                    ((const :tag "Custom" :custom) function)
                                     ((const :tag "Inhibit window quit" :inhibit-window-quit) boolean)
                                     ((const :tag "Ignore" :ignore) boolean)
                                     ((const :tag "Other" :other) boolean)
@@ -191,6 +205,7 @@ It's a plist with the same keys and values as described in
 `shackle-rules'."
   :type '(plist :options (((const :tag "Regexp" :regexp) boolean)
                           ((const :tag "Select" :select) boolean)
+                          ((const :tag "Custom" :custom) function)
                           ((const :tag "Inhibit window quit" :inhibit-window-quit) boolean)
                           ((const :tag "Ignore" :ignore) boolean)
                           ((const :tag "Other" :other) boolean)
@@ -221,8 +236,11 @@ PLIST is returned."
                        (and (plist-get plist :regexp)
                             (string-match condition buffer-name))))
               (and (consp condition)
-                   (cl-some (lambda (c) (shackle--match buffer-or-name c plist))
-                            condition)))
+                   (or (and (eq (car condition) :custom)
+                            (funcall (cadr condition) buffer))
+                       (cl-some (lambda (c) (shackle--match buffer-or-name
+                                                            c plist))
+                                condition))))
       plist)))
 
 (defun shackle-match (buffer-or-name)
@@ -378,6 +396,8 @@ the :ratio key with a floating point value."
   "Internal function for `shackle-display-buffer'.
 Displays BUFFER according to ALIST and PLIST."
   (cond
+   ((plist-get plist :custom)
+    (funcall (plist-get plist :custom) buffer alist plist))
    ((plist-get plist :ignore) 'fail)
    ((shackle--display-buffer-reuse buffer alist))
    ((or (plist-get plist :same)

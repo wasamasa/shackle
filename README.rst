@@ -39,6 +39,10 @@ string as the name of the buffer (which can be turned into regexp
 matching by using the ``:regexp`` key with a value of ``t`` in the
 key-value part) and a list groups either symbols or strings (as
 described earlier) while requiring at least one element to match.
+It's possible to supply a custom predicate by using ``(:custom
+function)`` as condition.  The predicate is called with the buffer to
+be displayed and is interpreted as a match given a non-nil return
+value.
 
 The following key-value pairs are available:
 
@@ -56,6 +60,14 @@ The following key-value pairs are available:
   ``:same`` (as ``q`` deleting the reused window is weird behaviour
   for more than one visible window), but can also be used with other
   keys like ``:other`` as well.
+
+- ``:custom`` and a function name or lambda expression:
+
+  Override with a custom action.  The specified function is called
+  with ``BUFFER-OR-NAME``, ``ALIST`` and ``PLIST`` as argument.  It's
+  possible to reuse existing actions as defined in the sources, but
+  dispatch based on more specific conditions such as the currently
+  opened windows or selected buffer.
 
 - ``:ignore`` and ``t``:
 
