@@ -205,6 +205,23 @@ the Emacs defaults which can play less well with packages (such as
 <https://github.com/emacs-helm/helm>`_).  Once you find out what's
 causing the problem, you can add an exception rule to fix it.
 
+Limitations
+-----------
+
+This package assumes that every case of altering the buffer display
+rules can be caught by checking for the buffer name or major mode of
+the respective buffer.  While this is true in most cases, there are
+obviously exceptions to this rule.  For example
+``find-function-at-point`` ends up displaying a file buffer containing
+the function definition in another window, but you can't infer this
+from that buffer alone.  The simple workaround is just replacing
+``find-function-at-point`` with something directly using your prefered
+flavour of ``display-buffer``.  If you're hell-bent on making it work
+with ``shackle`` though, you could check whether using custom
+conditions/actions works for you.  In case they aren't enough,
+advise the function displaying the buffer to alter it so that it can
+be detected by them.
+
 Contributing
 ------------
 
