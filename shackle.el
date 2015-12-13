@@ -42,12 +42,6 @@
   :group 'convenience
   :prefix "shackle-")
 
-(defcustom shackle-lighter " ⛓"
-  "Lighter for `shackle-mode'."
-  :type 'string
-  :group 'shackle
-  :risky t)
-
 (defcustom shackle-select-reused-windows nil
   "Make Emacs select reused windows by default?
 When t, select every window that is already displaying the buffer
@@ -437,7 +431,6 @@ window."
   "Toggle `shackle-mode'.
 This global minor mode allows you to easily set up rules for
 popups in Emacs."
-  :lighter shackle-lighter
   :global t
   (if shackle-mode
       (setq display-buffer-alist
