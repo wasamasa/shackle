@@ -77,11 +77,14 @@ window."
                  (const :tag "Right" right))
   :group 'shackle)
 
-(defcustom shackle-default-ratio 0.5
-  "Default ratio of aligned windows.
-Must be a floating point number between 0 and 1.  A value of 0.5
-splits the window in half, a value of 0.33 in a third, etc."
-  :type 'float
+(define-obsolete-variable-alias 'shackle-default-ratio 'shackle-default-size
+  "0.9.0")
+(defcustom shackle-default-size 0.5
+  "Default size of aligned windows.
+A floating point number between 0 and 1 is interpreted as a
+ratio.  An integer equal or greater than 1 is interpreted as a
+number of lines."
+  :type 'number
   :group 'shackle)
 
 (defcustom shackle-rules nil
@@ -157,10 +160,10 @@ other windows, then restore the window configuration after the
 window has been \"dealt\" with by either burying its buffer or
 deleting the window.
 
-:ratio and a floating point value between 0 and 1
+:size and a number greater than zero
 
-Use this option to specify a different ratio than the default
-value of 0.5 (see `shackle-default-ratio').
+Use this option to specify a different size than the default
+value of 0.5 (see `shackle-default-size').
 
 :frame and t
 
@@ -189,7 +192,7 @@ Pop to a frame instead of window."
                                              (const :tag "Below" 'below)
                                              (const :tag "Left" 'left)
                                              (const :tag "Right" 'right)))
-                                    ((const :tag "Ratio" :ratio) float)
+                                    ((const :tag "Size" :size) number)
                                     ((const :tag "Frame" :frame) boolean))))
   :group 'shackle)
 
@@ -212,7 +215,7 @@ It's a plist with the same keys and values as described in
                                    (const :tag "Below" 'below)
                                    (const :tag "Left" 'left)
                                    (const :tag "Right" 'right)))
-                          ((const :tag "Ratio" :ratio) float)
+                          ((const :tag "Size" :size) number)
                           ((const :tag "Frame" :frame) boolean)))
   :group 'shackle)
 
@@ -357,10 +360,10 @@ window if possible."
 (defun shackle--display-buffer-aligned-window (buffer alist plist)
   "Display BUFFER in an aligned window.
 ALIST is passed to `window--display-buffer' internally.
-Optionally use a different alignment and/or ratio if PLIST
+Optionally use a different alignment and/or size if PLIST
 contains the :alignment key with an alignment different than the
 default one in `shackle-default-alignment' and/or PLIST contains
-the :ratio key with a floating point value."
+the :size key with a number value."
   (let ((frame (shackle--splittable-frame)))
     (when frame
       (let* ((alignment-argument (plist-get plist :align))
@@ -370,12 +373,16 @@ the :ratio key with a floating point value."
                           shackle-default-alignment))
              (horizontal (when (memq alignment '(left right)) t))
              (old-size (window-size (frame-root-window) horizontal))
-             (ratio (or (plist-get plist :ratio) shackle-default-ratio))
-             (new-size (round (* (- 1 ratio) old-size))))
+             (size (or (plist-get plist :ratio) ; yey, backwards compatibility
+                       (plist-get plist :size)
+                       shackle-default-size))
+             (new-size (round (if (>= size 1)
+                                  (- old-size size)
+                                (* (- 1 size) old-size)))))
         (if (or (< new-size (if horizontal window-min-width window-min-height))
                 (> new-size (- old-size (if horizontal window-min-width
                                           window-min-height))))
-            (error "Invalid alignment ratio, aborting")
+            (error "Invalid alignment size %s, aborting" new-size)
           (let ((window (split-window (frame-root-window frame)
                                       new-size alignment)))
             (prog1 (window--display-buffer buffer window 'window alist

@@ -103,13 +103,15 @@ The following key-value pairs are available:
   with.  This can either happen by burying its buffer with ``q`` or by
   deleting its window with ``C-x 0``.
 
-- ``:ratio`` and a floating point value between 0 and 1:
+- ``:size`` and number greater than zero:
 
   Aligned window use a default ratio of 0.5 to split up the original
-  window in half (customizable with ``shackle-default-ratio``), the
+  window in half (customizable with ``shackle-default-size``), the
   ratio can be changed on a per-case basis by providing a different
-  floating point value like 0.33 to make it occupy a third of the
-  original window's size.
+  floating point value between 0 and 1.  A value of 0.33 for example
+  would make it occupy a third of the original window's size.
+  Alternatively you can use an integer value of 1 or greater to
+  display a window of the specified width or height instead.
 
 - ``:frame`` and ``t``:
 
@@ -155,7 +157,7 @@ windows by aligning them at the bottom with a ratio of 40%:
 
 .. code:: elisp
 
-    (setq shackle-rules '(("\\`\\*helm.*?\\*\\'" :regexp t :align t :ratio 0.4)))
+    (setq shackle-rules '(("\\`\\*helm.*?\\*\\'" :regexp t :align t :size 0.4)))
 
 Breaking Changes
 ----------------
