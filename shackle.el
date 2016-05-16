@@ -155,10 +155,8 @@ Don't pop up any window and reuse the currently active one.
 :align and t or either of 'above, 'below, 'left and 'right
 
 Align the popped up window at any of the specified sides or the
-default size (see `shackle-default-alignment') by deleting all
-other windows, then restore the window configuration after the
-window has been \"dealt\" with by either burying its buffer or
-deleting the window.
+default size (see `shackle-default-alignment') by splitting the
+root window.
 
 :size and a number greater than zero
 

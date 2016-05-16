@@ -98,10 +98,7 @@ The following key-value pairs are available:
 
   Align a new window at the respective side of the current frame or
   with the default alignment (customizable with
-  ``shackle-default-alignment``) by deleting every other window than
-  the currently selected one, then wait for the window to be "dealt"
-  with.  This can either happen by burying its buffer with ``q`` or by
-  deleting its window with ``C-x 0``.
+  ``shackle-default-alignment``) by splitting the root window.
 
 - ``:size`` and number greater than zero:
 
