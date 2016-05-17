@@ -129,6 +129,42 @@ Once you're done customizing ``shackle-rules``, use ``M-x
 shackle-mode`` to enable ``shackle`` interactively.  To enable it
 automatically on startup, add ``(shackle-mode)`` to your init file.
 
+Grammar
+-------
+
+The above section expressed as EBNF:
+
+.. code::
+
+    RULES = "(" , { RULE } , ")" .
+    RULE = "(" , CONDITION , PLIST , ")" .
+    DEFAULT_RULE = "(" , PLIST , ")" .
+
+    CONDITION = SIMPLE_CONDITION | LIST_CONDITION | FUNCTION_CONDITION .
+    SIMPLE_CONDITION = SYMBOL | STRING .
+    LIST_CONDITION = "(" , { SIMPLE_CONDITION } , ")" .
+    FUNCTION_CONDITION = "(:custom" , FUNCTION , ")" .
+    T_OR_NIL = "t" | "nil" .
+
+    PLIST = "(" , [ ":regexp" , T_OR_NIL ] , ACTIONS , ")" .
+    ACTIONS = EXCLUSIVE_ACTION , [ OPTIONAL_ACTIONS ] .
+
+    EXCLUSIVE_ACTION = CUSTOM_ACTION | IGNORE_ACTION | OTHER_ACTION | POPUP_ACTION | SAME_ACTION | ALIGN_ACTION | FRAME_ACTION .
+    CUSTOM_ACTION = ":custom" , FUNCTION .
+    IGNORE_ACTION = ":ignore" , T_OR_NIL .
+    OTHER_ACTION = ":other" , T_OR_NIL , [":frame" , T_OR_NIL] .
+    POPUP_ACTION = ":popup" , T_OR_NIL .
+    SAME_ACTION = ":same" , T_OR_NIL .
+    ALIGN_ACTION = ":align" , ALIGN_VALUE , [":size" , SIZE_VALUE] .
+    ALIGN_VALUE = T_OR_NIL | "above" | "below" | "left" | "right" .
+    SIZE_VALUE = FLOAT | INT .
+    FRAME_ACTION = ":frame" , T_OR_NIL .
+
+    OPTIONAL_ACTIONS = { OPTIONAL_ACTION } .
+    OPTIONAL_ACTION = SELECT_ACTION | INHIBIT_WINDOW_QUIT_ACTION .
+    SELECT_ACTION = ":select" , T_OR_NIL .
+    INHIBIT_WINDOW_QUIT_ACTION = ":inhibit-window-quit" , T_OR_NIL .
+
 Examples
 --------
 
