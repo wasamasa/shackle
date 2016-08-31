@@ -94,11 +94,13 @@ The following key-value pairs are available:
   one.
 
 - ``:align`` and ``'above``, ``'below``, ``'left``, ``'right``, or
-  ``t``:
+  ``t`` or a function:
 
   Align a new window at the respective side of the current frame or
   with the default alignment (customizable with
-  ``shackle-default-alignment``) by splitting the root window.
+  ``shackle-default-alignment``) by splitting the root window.  If a
+  function is specified, it is called with zero arguments and must
+  return any of the above alignments.
 
 - ``:size`` and number greater than zero:
 
@@ -156,7 +158,7 @@ The above section expressed as EBNF:
     POPUP_ACTION = ":popup" , T_OR_NIL .
     SAME_ACTION = ":same" , T_OR_NIL .
     ALIGN_ACTION = ":align" , ALIGN_VALUE , [":size" , SIZE_VALUE] .
-    ALIGN_VALUE = T_OR_NIL | "above" | "below" | "left" | "right" .
+    ALIGN_VALUE = T_OR_NIL | "above" | "below" | "left" | "right" | FUNCTION .
     SIZE_VALUE = FLOAT | INT .
     FRAME_ACTION = ":frame" , T_OR_NIL .
 
