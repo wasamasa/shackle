@@ -192,6 +192,7 @@ windows by aligning them at the bottom with a ratio of 40%:
 
 .. code:: elisp
 
+    (setq helm-display-function 'pop-to-buffer) ; make helm play nice
     (setq shackle-rules '(("\\`\\*helm.*?\\*\\'" :regexp t :align t :size 0.4)))
 
 Breaking Changes
