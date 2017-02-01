@@ -443,8 +443,7 @@ window."
       (shackle--inhibit-window-quit window))
     (when (and (plist-get plist :select) (window-live-p window))
       (select-window window t))
-    window))
-  )
+    window)))
 
 ;;;###autoload
 (define-minor-mode shackle-mode
