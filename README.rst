@@ -173,7 +173,7 @@ Troubleshooting
 In case your rules don't have any effect on a package, you can enable
 tracing of calls to ``display-buffer`` and other functions using it
 with ``M-x shackle-trace-functions``, perform the action displaying
-the buffer and check the "*shackle trace*" buffer for the displayed
+the buffer and check the ``*shackle trace*`` buffer for the displayed
 buffer.  If nothing shows up, the package isn't using
 ``display-buffer`` at all, there isn't much you can do in that case
 other than asking its author to reconsider using it.  If it does,
