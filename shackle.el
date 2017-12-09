@@ -491,7 +491,7 @@ popups in Emacs."
   "Enable tracing `shackle-traced-functions'."
   (interactive)
   (dolist (function shackle-traced-functions)
-    (untrace-function function shackle-trace-buffer)))
+    (untrace-function function)))
 
 (provide 'shackle)
 ;;; shackle.el ends here
