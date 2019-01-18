@@ -298,6 +298,19 @@ internally."
   "Keep `quit-window' in WINDOW from deleting the window."
   (set-window-parameter window 'quit-restore nil))
 
+(defun shackle--window-display-buffer (buffer window type alist)
+  "Compatibility wrapper for `window--display-buffer'.
+Displays BUFFER in WINDOW, considering TYPE and ALIST. This
+accounts for the changed meaning of the former DEDICATED argument
+which has been dropped in Emacs 27.  Considering that this
+package never supported marking a window as dedicated and earlier
+Emacsen just passed `display-buffer-mark-dedicated' for its
+value, it's safe to just omit that argument if not necessary."
+  (if (< emacs-major-version 27)
+      (window--display-buffer buffer window type alist
+                              display-buffer-mark-dedicated)
+    (window--display-buffer buffer window type alist)))
+
 (defun shackle--display-buffer-reuse (buffer alist)
   "Attempt reusing a window BUFFER is already displayed in.
 ALIST is passed to `display-buffer-reuse-window' internally.  If
@@ -311,18 +324,18 @@ afterwards."
 
 (defun shackle--display-buffer-same (buffer alist)
   "Display BUFFER in the currently selected window.
-ALIST is passed to `window--display-buffer' internally."
-  (let ((window (window--display-buffer buffer (selected-window)
-                                        'window alist)))
+ALIST is passed to `shackle--window-display-buffer' internally."
+  (let ((window (shackle--window-display-buffer buffer (selected-window)
+                                                'window alist)))
     (prog1 window
       (when shackle-inhibit-window-quit-on-same-windows
         (shackle--inhibit-window-quit window)))))
 
 (defun shackle--display-buffer-frame (buffer alist plist)
   "Display BUFFER in a popped up frame.
-ALIST is passed to `window--display-buffer' internally.  If PLIST
-contains the :other key with t as value, reuse the next available
-frame if possible, otherwise pop up a new frame."
+ALIST is passed to `shackle--window-display-buffer' internally.
+If PLIST contains the :other key with t as value, reuse the next
+available frame if possible, otherwise pop up a new frame."
   (let* ((params (cdr (assq 'pop-up-frame-parameters alist)))
          (pop-up-frame-alist (append params pop-up-frame-alist))
          (fun pop-up-frame-function))
@@ -332,9 +345,8 @@ frame if possible, otherwise pop up a new frame."
                         (next-frame nil 'visible)
                       (funcall fun)))
              (window (frame-selected-window frame)))
-        (prog1 (window--display-buffer
-                buffer window 'frame alist
-                display-buffer-mark-dedicated)
+        (prog1 (shackle--window-display-buffer
+                buffer window 'frame alist)
           (unless (cdr (assq 'inhibit-switch-frame alist))
             (window--maybe-raise-frame frame)))))))
 
@@ -346,17 +358,16 @@ frame if possible, otherwise pop up a new frame."
 
 (defun shackle--display-buffer-popup-window (buffer alist plist)
   "Display BUFFER in a popped up window.
-ALIST is passed to `window--display-buffer' internally.  If PLIST
-contains the :other key with t as value, reuse the next available
-window if possible."
+ALIST is passed to `shackle--window-display-buffer' internally.
+If PLIST contains the :other key with t as value, reuse the next
+available window if possible."
   (let ((frame (shackle--splittable-frame)))
     (when frame
       (let ((window (if (and (plist-get plist :other) (not (one-window-p)))
                         (next-window nil 'nominibuf)
                       (shackle--split-some-window frame alist))))
-        (prog1 (window--display-buffer
-                buffer window 'window alist
-                display-buffer-mark-dedicated)
+        (prog1 (shackle--window-display-buffer
+                buffer window 'window alist)
           (when window
             (setq shackle-last-window window
                   shackle-last-buffer buffer))
@@ -365,7 +376,7 @@ window if possible."
 
 (defun shackle--display-buffer-aligned-window (buffer alist plist)
   "Display BUFFER in an aligned window.
-ALIST is passed to `window--display-buffer' internally.
+ALIST is passed to `shackle--window-display-buffer' internally.
 Optionally use a different alignment and/or size if PLIST
 contains the :alignment key with an alignment different than the
 default one in `shackle-default-alignment' and/or PLIST contains
@@ -396,8 +407,7 @@ the :size key with a number value."
             (error "Invalid alignment size %s, aborting" new-size)
           (let ((window (split-window (frame-root-window frame)
                                       new-size alignment)))
-            (prog1 (window--display-buffer buffer window 'window alist
-                                           display-buffer-mark-dedicated)
+            (prog1 (shackle--window-display-buffer buffer window 'window alist)
               (when window
                 (setq shackle-last-window window
                       shackle-last-buffer buffer))
