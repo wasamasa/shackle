@@ -181,7 +181,7 @@ one of the following might be the case:
 
 - Your rule fails matching the buffer.  This might be due to a typo in
   the buffer name, an erroneous regular expression when used with
-  ``:regex t`` or in the case of a major mode, the major mode not
+  ``:regexp t`` or in the case of a major mode, the major mode not
   being enabled at the time of the matching.  The latter must be fixed
   for the package.
 - The package overrides ``display-buffer-alist``.  I believe this to
