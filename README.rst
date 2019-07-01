@@ -110,7 +110,9 @@ The following key-value pairs are available:
   floating point value between 0 and 1.  A value of 0.33 for example
   would make it occupy a third of the original window's size.
   Alternatively you can use an integer value of 1 or greater to
-  display a window of the specified width or height instead.
+  display a window of the specified width or height instead. If a
+  function is specified, it is called with zero arguments and must
+  return a number of the above two types.
 
 - ``:frame`` and ``t``:
 
